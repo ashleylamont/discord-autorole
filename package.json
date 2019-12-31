@@ -1,0 +1,26 @@
+{
+  "name": "discord_autorole_bot",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sentry/node": "^5.10.2",
+    "dblapi.js": "^2.3.0",
+    "discord.js": "^11.5.1",
+    "minimist": "^1.2.0",
+    "pg": "^7.14.0",
+    "ramda": "^0.26.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js verbose"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "roles.json",
+      "users.json"
+    ],
+    "delay": 1000
+  }
+}
