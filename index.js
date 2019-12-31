@@ -50,9 +50,18 @@ postgresClient.connect(err => {
     if (err) {
         console.error('connection error', err.stack)
     } else {
-        console.log('connected')
+        console.log('connected to the database')
     }
 });
+
+// Load localisations and i18next.
+console.log("Initialising localisation modules and locale files.");
+let localisation = require('./locale.json');
+const i18next = require('i18next');
+i18next.init(localisation).then(function (t) {
+    // initialized and ready to go!
+});
+let nonEnglishServers = [];
 
 // when the discordClient is ready, run this code
 discordClient.once("ready", () => {
@@ -68,6 +77,32 @@ discordClient.once("ready", () => {
 
         discordClient.guilds.forEach((val) => {
             let guild = val;
+
+            postgresClient.query(`SELECT * FROM serverlocales WHERE serverid=$1`, [guild.id]).then(res => {
+
+                if (res.rowCount === 0) {
+                    postgresClient.query(`INSERT INTO serverlocales (serverid,language) VALUES ($1,$2)`, [guild.id, "en"]).then(res => {
+
+                        if (verbose) {
+                            console.log(`Added ${guild.name} (${guild.id}) to the localisation database.`)
+                        }
+
+                    }).catch(err => {
+                        console.log(err.stack);
+                        Sentry.captureException(err);
+                    });
+                } else {
+                    if (nonEnglishServers.includes(res.rows[0].serverid) === false && res.rows[0].language !== "en") {
+                        nonEnglishServers.push(res.rows[0].serverid);
+                        console.log(`Recorded server ${res.rows[0].serverid} as a non-english speaking server.`);
+                    }
+                }
+
+            }).catch(err => {
+                console.log(err.stack);
+                Sentry.captureException(err);
+            });
+
             postgresClient.query(`SELECT * FROM rolebindings WHERE serverid=$1`, [guild.id]).then(res => {
 
                 res.rows.forEach((val) => {
@@ -82,7 +117,17 @@ discordClient.once("ready", () => {
                                 let roleName = guild.roles.get(rolebinding.roleid).name;
                                 guildMember.addRole(rolebinding.roleid).then(res => {
                                     console.log(`Gave ${guildMember.displayName} the role ${roleName} on server ${guild.name}`);
-                                    guildMember.user.send(`Hey, I noticed you played \`${rolebinding.gamename}\` on \`${guild.name}\` so I gave you the role \`${roleName}\`.`);
+
+                                    // I know this is terrible and its a sin and I should really replace this with its own separate code rather than hacking it into the existing function, but fuck it, it works.
+                                    // NOTE: ONLY EVER USE MSG HERE FOR THE CONTEXT.
+                                    sendMessage({
+                                        "author": guildMember.user,
+                                        "guild": guild
+                                    }, "msg", "gaveRoleMsg", {
+                                        "gameName": rolebinding.gamename,
+                                        "guildName": guild.name,
+                                        "roleName": roleName
+                                    });
                                 });
                             }
                         }
@@ -107,10 +152,93 @@ discordClient.once("ready", () => {
 // The channels that the bot is allowed to respond to commands in. https://discord.js.org/#/docs/main/stable/class/DMChannel?scrollTo=type
 const allowedChannels = ["text"];
 
+function sendMessage(message, context, key, params) {
+    let serverid = message.guild.id;
+    if (nonEnglishServers.includes(serverid)) {
+        postgresClient.query(`SELECT * FROM serverlocales WHERE serverid=$1`, [serverid]).then(res => {
+
+            if (res.rowCount === 0) {
+                console.log(`No locale found in database for server ${serverid}`);
+                Sentry.captureException(`No locale found in database for server ${serverid}`);
+                switch (context) {
+                    case "send":
+                        message.channel.send("I'm sorry, there was an error getting your server's language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK");
+                        break;
+                    case "reply":
+                        message.reply("I'm sorry, there was an error getting your server's language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK");
+                        break;
+                    case "msg":
+                        message.author.send(`I'm sorry, there was an error getting your server (${message.guild.name}) language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK`);
+                        break;
+                    default:
+                        console.log("Missing message context.");
+                        Sentry.captureException("Missing message context.");
+                        break;
+                }
+            } else {
+                let options;
+                if (params === null || params === undefined) {
+                    options = {};
+                } else {
+                    options = params;
+                }
+                options["lng"] = res.rows[0].language;
+
+                switch (context) {
+                    case "send":
+                        message.channel.send(i18next.t(key, options));
+                        break;
+                    case "reply":
+                        message.reply(i18next.t(key, options));
+                        break;
+                    case "msg":
+                        message.author.send(i18next.t(key, options));
+                        break;
+                    default:
+                        message.reply(i18next.t("errorMsg", options));
+                        console.log("Missing message context.");
+                        Sentry.captureException("Missing message context.");
+                        break;
+                }
+            }
+
+        }).catch(err => {
+            console.log(err.stack);
+            Sentry.captureException(err);
+        });
+    } else {
+        let options;
+        if (params === null || params === undefined) {
+            options = {};
+        } else {
+            options = params;
+        }
+        options["lng"] = "en";
+
+        switch (context) {
+            case "send":
+                message.channel.send(i18next.t(key, options));
+                break;
+            case "reply":
+                message.reply(i18next.t(key, options));
+                break;
+            case "msg":
+                message.author.send(i18next.t(key, options));
+                break;
+            default:
+                message.reply(i18next.t("errorMsg", options));
+                console.log("Missing message context.");
+                Sentry.captureException("Missing message context.");
+                break;
+        }
+    }
+}
+
 discordClient.on('message', message => {
 
     if (!(!message.content.startsWith(prefix) || message.author.bot) && allowedChannels.includes(message.channel.type)) {
         if (!message.member.permissions.has("ADMINISTRATOR")) {
+            sendMessage(message, "reply", "adminRequiredMsg");
             return message.reply("Sorry, this bot is currently only accessible to users with the `ADMINISTRATOR` permission.");
         }
         const args = message.content.slice(prefix.length).split(/ +/);
@@ -120,11 +248,11 @@ discordClient.on('message', message => {
             // usage: !set-role @role gameName
 
             if (message.mentions.roles.first() === undefined) {
-                return message.reply(`you have to @mention a role for this to work! \`!set-role @role gameName\``)
+                sendMessage(message, "reply", "setRoleMissingRole");
             }
             args.shift();
             if (args[0] === undefined) {
-                return message.reply(`you have to specify a game for this to work! \`!set-role @role gameName$\``)
+                sendMessage(message, "reply", "setRoleMissingGame");
             }
             let gameName = args.join(" ").toLowerCase();
 
@@ -134,21 +262,21 @@ discordClient.on('message', message => {
 
                     postgresClient.query(`INSERT INTO rolebindings (serverid,roleid,gamename) VALUES ($1,$2,$3)`, [message.guild.id.toString(), message.mentions.roles.first().id, gameName]).then(res => {
 
-                        message.channel.send("Created the role binding.\nJust remember to double check your spelling, since I can only work if its spelled exactly as it appears in discord. ( Don't worry about upper/lower case though :wink: )");
+                        sendMessage(message, "send", "setRoleSuccess");
                         console.log(`User ${message.author.username} created a rolebinding for ${gameName} and ${message.mentions.roles.first().name} on ${message.guild.name}`);
 
                     }).catch(err => {
-                        message.reply("I'm sorry, there was an error.");
+                        sendMessage(message, "reply", "errorMsg");
                         console.log(err.stack);
                         Sentry.captureException(err);
                     });
 
                 } else {
-                    message.channel.send("This role binding already exists.")
+                    sendMessage(message, "send", "setRoleDuplicate");
                 }
 
             }).catch(err => {
-                message.reply("I'm sorry, there was an error.");
+                sendMessage(message, "reply", "errorMsg");
                 console.log(err.stack);
                 Sentry.captureException(err);
             });
@@ -157,11 +285,11 @@ discordClient.on('message', message => {
             // usage: !clear-role @role gameName
 
             if (message.mentions.roles.first() === undefined) {
-                return message.reply(`you have to @mention a role for this to work! \`!clear-role @role gameName\``)
+                sendMessage(message, "reply", "clearRoleMissingRole");
             }
             args.shift();
             if (args[0] === undefined) {
-                return message.reply(`you have to specify a game for this to work! \`!clear-role @role gameName$\``)
+                sendMessage(message, "reply", "clearRoleMissingGame");
             }
 
             let gameName = args.join(" ").toLowerCase();
@@ -169,23 +297,42 @@ discordClient.on('message', message => {
             postgresClient.query(`DELETE FROM rolebindings WHERE serverid=$1 and roleid=$2 and gamename=$3`, [message.guild.id.toString(), message.mentions.roles.first().id, gameName]).then(res => {
 
                 if (res.rowCount === 0) {
-                    message.channel.send("I couldn't find any role bindings with that game name and role on this server. Are you sure you spelt it right?");
+                    sendMessage(message, "send", "clearRoleNoneFound");
                 } else {
-                    message.channel.send("Deleted any role bindings matching the given role and game name on this server.")
+                    sendMessage(message, "send", "clearRoleSuccess");
                     console.log(`User ${message.author.username} deleted a rolebinding for ${gameName} and ${message.mentions.roles.first().name} on ${message.guild.name}`);
                 }
 
             }).catch(err => {
-                message.reply("I'm sorry, there was an error.");
+                sendMessage(message, "reply", "errorMsg");
                 console.log(err.stack);
                 Sentry.captureException(err);
             });
 
+        } else if (command === 'get-roles') {
+            // usage: !get-roles
+
+            postgresClient.query(`SELECT * FROM rolebindings WHERE serverid=$1`, [message.guild.id.toString()]).then(res => {
+
+                if (res.rowCount === 0) {
+                    sendMessage(message, "send", "clearRoleNoneFound")
+                } else {
+                    res.rows.forEach((val) => {
+                        sendMessage(message, "send", "getRolesSuccess", {
+                            "roleName": message.guild.roles.get(val.roleid).name,
+                            "gameName": val.gamename
+                        });
+                    })
+                }
+
+            }).catch(err => {
+                sendMessage(message, "msg", "errorMsg");
+                console.log(err.stack);
+                Sentry.captureException(err);
+            });
         } else if (command === 'help') {
-            message.reply("I sent you a dm with instructions.");
-            message.author.send(
-                `Hey there, this is gonna be kinda improv since I'm writing this knowing that it will probably change soon.\nAnyways, the bot uses a system of rolebindings to manage what game gives what role. The bot manages most of this for you, so what you need to know is this:\n\n\`!set-role @role game name\` to create a role binding, this will give anybody who plays "game name" the role @role on the server the command is run on.\n\`!clear-role @role game name\` to remove a role binding. This will prevent the bot from giving any more users the role, although it will not remove already applied roles.\n\nI hope you enjoy this!`
-            );
+            sendMessage(message, "reply", "helpReply");
+            sendMessage(message, "msg", "helpMsg");
         }
     }
 });

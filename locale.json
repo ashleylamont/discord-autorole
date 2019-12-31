@@ -1,0 +1,24 @@
+{
+  "lng": "en",
+  "debug": true,
+  "resources": {
+    "en": {
+      "translation": {
+        "gaveRoleMsg": "Hey, I noticed you played `{{gameName}}` on `{{guildName}}` so I gave you the role `{{roleName}}`.",
+        "adminRequiredMsg": "Sorry, this bot is currently only accessible to users with the `ADMINISTRATOR` permission.",
+        "setRoleMissingRole": "you have to @mention a role for this to work! `!set-role @role gameName`",
+        "setRoleMissingGame": "you have to specify a game for this to work! `!set-role @role gameName`",
+        "setRoleSuccess": "Created the role binding.\nJust remember to double check your spelling, since I can only work if it's spelled exactly as it appears in discord. ( Don't worry about upper/lower case though :wink: )",
+        "errorMsg": "I'm sorry, there was an error.",
+        "setRoleDuplicate": "This role binding already exists.",
+        "clearRoleMissingRole": "you have to @mention a role for this to work! `!clear-role @role gameName`",
+        "clearRoleMissingGame": "you have to specify a game for this to work! `!clear-role @role gameName`",
+        "clearRoleNoneFound": "I couldn't find any role bindings with that game name and role on this server. Are you sure you spelt it right?",
+        "clearRoleSuccess": "Deleted any role bindings matching the given role and game name on this server.",
+        "getRolesSuccess": "Currently giving role `{{roleName}}` to anybody who plays `{{gameName}}`.",
+        "helpReply": "I sent you a dm with instructions.",
+        "helpMsg": "Hey there, this bot allows you to assign roles automatically to people, if they play a certain game (that you specify).\nAnyways, the bot uses a system of rolebindings to manage what game gives what role. The bot manages most of this for you, so what you need to know is this:\n\n`!set-role @role game name` to create a role binding, this will give anybody who plays \"game name\" the role @role on the server the command is run on.\n`!clear-role @role game name` to remove a role binding. This will prevent the bot from giving any more users the role, although it will not remove already applied roles.\n`!get-roles` to check if you have any role bindings on your server, and to check they're spelled right, which is a suprisingly common issue :sweat_smile:\n\nI hope you enjoy this!"
+      }
+    }
+  }
+}
