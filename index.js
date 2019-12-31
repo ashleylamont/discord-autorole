@@ -1,6 +1,9 @@
+// Load config file
+const {prefix, token, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken, sentryDSN} = require('./config.json');
+
 // initialise sentry for error tracking
 const Sentry = require('@sentry/node');
-Sentry.init({dsn: 'https://b78818bdb9bd44269181992aa760dbbb@sentry.io/1868476'});
+Sentry.init({dsn: sentryDSN});
 
 // require the discord.js module
 const Discord = require('discord.js');
@@ -10,9 +13,6 @@ const {performance} = require('perf_hooks');
 
 // create a new Discord discordClient
 const discordClient = new Discord.Client();
-
-// Load config file
-const {prefix, token, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken} = require('./config.json');
 
 // connect to top.gg
 const DBL = require("dblapi.js");
