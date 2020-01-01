@@ -330,6 +330,40 @@ discordClient.on('message', message => {
                 console.log(err.stack);
                 Sentry.captureException(err);
             });
+        } else if (command === "locale") {
+            // usage: !locale -> get available locales
+            //usage: !locale locale -> Select locale
+
+            if (args[0] === undefined) {
+                let languages = "";
+                i18next.languages.filter(val => {
+                    return val !== "dev"
+                }).forEach((val, index) => {
+                    if (index === 0) {
+                        languages += val;
+                    } else {
+                        languages += ", " + val;
+                    }
+                });
+                sendMessage(message, "send", "localeAvailable", {"locales": languages});
+            } else {
+                if (i18next.languages.includes(args[0])) {
+                    postgresClient.query(`UPDATE serverlocales SET language=$1 WHERE serverid=$2`, [args[0], message.guild.id]).then(res => {
+
+                        console.log(`Updated ${message.guild.name}'s language to use ${args[0]}.`);
+                        sendMessage(message, "send", "localeChanged");
+
+                    }).catch(err => {
+                        sendMessage(message, "reply", "errorMsg");
+                        console.log(err.stack);
+                        Sentry.captureException(err);
+                    });
+                } else {
+                    sendMessage(message, "reply", "localeFailure");
+                    console.log(`User tried to use language "${args[0]}".`);
+                }
+            }
+
         } else if (command === 'help') {
             sendMessage(message, "reply", "helpReply");
             sendMessage(message, "msg", "helpMsg");
