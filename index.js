@@ -148,7 +148,6 @@ discordClient.once("ready", () => {
     }, 5000);
 });
 
-
 // The channels that the bot is allowed to respond to commands in. https://discord.js.org/#/docs/main/stable/class/DMChannel?scrollTo=type
 const allowedChannels = ["text"];
 
@@ -162,13 +161,25 @@ function sendMessage(message, context, key, params) {
                 Sentry.captureException(`No locale found in database for server ${serverid}`);
                 switch (context) {
                     case "send":
-                        message.channel.send("I'm sorry, there was an error getting your server's language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK");
+                        message.channel.send("I'm sorry, there was an error getting your server's language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK").catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                            Sentry.captureException(err);
+                        });
                         break;
                     case "reply":
-                        message.reply("I'm sorry, there was an error getting your server's language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK");
+                        message.reply("I'm sorry, there was an error getting your server's language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK").catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                            Sentry.captureException(err);
+                        });
                         break;
                     case "msg":
-                        message.author.send(`I'm sorry, there was an error getting your server (${message.guild.name}) language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK`);
+                        message.author.send(`I'm sorry, there was an error getting your server (${message.guild.name}) language. Try again in a couple of minutes, or join the support server at discord.gg/EJDvNsK`).catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                            Sentry.captureException(err);
+                        });
                         break;
                     default:
                         console.log("Missing message context.");
@@ -186,16 +197,32 @@ function sendMessage(message, context, key, params) {
 
                 switch (context) {
                     case "send":
-                        message.channel.send(i18next.t(key, options));
+                        message.channel.send(i18next.t(key, options)).catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                            Sentry.captureException(err);
+                        });
                         break;
                     case "reply":
-                        message.reply(i18next.t(key, options));
+                        message.reply(i18next.t(key, options)).catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                            Sentry.captureException(err);
+                        });
                         break;
                     case "msg":
-                        message.author.send(i18next.t(key, options));
+                        message.author.send(i18next.t(key, options)).catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                            Sentry.captureException(err);
+                        });
                         break;
                     default:
-                        message.reply(i18next.t("errorMsg", options));
+                        message.reply(i18next.t("errorMsg", options)).catch(err => {
+                            console.log(err.stack);
+                            console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with errorMsg.`);
+                            Sentry.captureException(err);
+                        });
                         console.log("Missing message context.");
                         Sentry.captureException("Missing message context.");
                         break;
@@ -217,16 +244,32 @@ function sendMessage(message, context, key, params) {
 
         switch (context) {
             case "send":
-                message.channel.send(i18next.t(key, options));
+                message.channel.send(i18next.t(key, options)).catch(err => {
+                    console.log(err.stack);
+                    console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                    Sentry.captureException(err);
+                });
                 break;
             case "reply":
-                message.reply(i18next.t(key, options));
+                message.reply(i18next.t(key, options)).catch(err => {
+                    console.log(err.stack);
+                    console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                    Sentry.captureException(err);
+                });
                 break;
             case "msg":
-                message.author.send(i18next.t(key, options));
+                message.author.send(i18next.t(key, options)).catch(err => {
+                    console.log(err.stack);
+                    console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with ${key}.`);
+                    Sentry.captureException(err);
+                });
                 break;
             default:
-                message.reply(i18next.t("errorMsg", options));
+                message.reply(i18next.t("errorMsg", options)).catch(err => {
+                    console.log(err.stack);
+                    console.log(`Error at server: ${message.guild.name}/${message.guild.id} from user: ${message.author.name}#${message.author.discriminator} in channel: ${message.channel.name}. Bot tried to ${context} to ${message.content} with errorMsg.`);
+                    Sentry.captureException(err);
+                });
                 console.log("Missing message context.");
                 Sentry.captureException("Missing message context.");
                 break;
@@ -350,6 +393,9 @@ discordClient.on('message', message => {
                 if (i18next.languages.includes(args[0])) {
                     postgresClient.query(`UPDATE serverlocales SET language=$1 WHERE serverid=$2`, [args[0], message.guild.id]).then(res => {
 
+                        if (nonEnglishServers.includes(message.guild.id) === false) {
+                            nonEnglishServers.push(message.guild.id);
+                        }
                         console.log(`Updated ${message.guild.name}'s language to use ${args[0]}.`);
                         sendMessage(message, "send", "localeChanged");
 
