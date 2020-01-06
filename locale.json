@@ -5,6 +5,7 @@
     "en": {
       "translation": {
         "gaveRoleMsg": "Hey, I noticed you played `{{gameName}}` on `{{guildName}}` so I gave you the role `{{roleName}}`.",
+        "removedRoleMsg": "Hey, I noticed you stopped playing `{{gameName}}` on `{{guildName}}` so I took away the role `{{roleName}}`.",
         "adminRequiredMsg": "Sorry, this bot is currently only accessible to users with the `ADMINISTRATOR` permission.",
         "setRoleMissingRole": "you have to @mention a role for this to work! `!set-role @role gameName`",
         "setRoleMissingGame": "you have to specify a game for this to work! `!set-role @role gameName`",
@@ -16,11 +17,13 @@
         "clearRoleNoneFound": "I couldn't find any role bindings with that game name and role on this server. Are you sure you spelt it right?",
         "clearRoleSuccess": "Deleted any role bindings matching the given role and game name on this server.",
         "getRolesSuccess": "Currently giving role `{{roleName}}` to anybody who plays `{{gameName}}`.",
+        "getRolesNoneFound": "There aren't any role bindings currently active on this server.",
         "helpReply": "I sent you a dm with instructions.",
         "helpMsg": "Hey there, this bot allows you to assign roles automatically to people, if they play a certain game (that you specify).\nAnyways, the bot uses a system of rolebindings to manage what game gives what role. The bot manages most of this for you, so what you need to know is this:\n\n`!set-role @role game name` to create a role binding, this will give anybody who plays \"game name\" the role @role on the server the command is run on.\n`!clear-role @role game name` to remove a role binding. This will prevent the bot from giving any more users the role, although it will not remove already applied roles.\n`!get-roles` to check if you have any role bindings on your server, and to check they're spelled right, which is a surprisingly common issue :sweat_smile:\n`!locale` to see available languages.\n`!locale language-code` to change the language on your server. (Replace \"language-code\" with any available language code, e.g. \"en\")\n\nI hope you enjoy this!",
         "localeAvailable": "The following languages are available to use: {{locales}}.",
         "localeChanged": "You have changed your language to english.",
-        "localeFailure": "I'm sorry, I don't appear to have that language. Use `!locale` to see what languages are available."
+        "localeFailure": "I'm sorry, I don't appear to have that language. Use `!locale` to see what languages are available.",
+        "editRoleNoneApplicable": "I'm sorry, there either aren't any role bindings with that ID, or they aren't available on this discord server."
       }
     }
   }
