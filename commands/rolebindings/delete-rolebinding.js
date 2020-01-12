@@ -15,7 +15,7 @@ module.exports = class LocaleCommand extends Command {
                 duration: 10
             },
             guildOnly: true,
-            clientPermissions: ['SEND_MESSAGES', 'MANAGE_ROLES'],
+            clientPermissions: ['ADMINISTRATOR'],
             userPermissions: ['MANAGE_ROLES'],
             args: [
                 {
@@ -38,7 +38,13 @@ module.exports = class LocaleCommand extends Command {
                 })["language"];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
             } else {
-                message.say("Deleting the following role binding:");
+                message.say("Deleting the following role binding:").catch(err => {
+                    let lng = message.client.serverConfigCache.find(val => {
+                        return val["serverid"] === message.guild.id
+                    })["language"];
+                    console.error(err);
+                    return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
+                });
                 let val = res.rows[0];
                 let newEmbed = new message.client.discord.MessageEmbed()
                     .setTitle("Role Binding")
@@ -47,8 +53,14 @@ module.exports = class LocaleCommand extends Command {
                     .addField("Rolebinding ID", val.rolebinding, true)
                     .addField("Send Messages?", (val.sendmessages) ? `Currently sending messages when I assign <@&${val.roleid}>` : `Not sending messages when I assign <@&${val.roleid}>`)
                     .addField("Remove Role?", (val.removewheninactive) ? `Currently removing <@&${val.roleid}> when users stop playing ${val.gamename}` : `Not removing <@&${val.roleid}> when users stop playing ${val.gamename}`);
-                message.embed(newEmbed);
-                message.client.postgresClient.query(`DELETE FROM rolebindings WHERE rolebinding=$1 AND serverid=$2 RETURNING *`, [rolebinding, message.guild.id]).then(res => {
+                message.embed(newEmbed).catch(err => {
+                    let lng = message.client.serverConfigCache.find(val => {
+                        return val["serverid"] === message.guild.id
+                    })["language"];
+                    console.error(err);
+                    return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
+                });
+                message.client.postgresClient.query(`DELETE FROM rolebindings WHERE rolebinding=$1 AND serverid=$2 RETURNING *`, [rolebinding, message.guild.id]).then(() => {
 
                     return message.say(`Deleted the rolebinding.\nTo re-enable it type ${message.anyUsage(`create-rolebinding @${message.guild.roles.get(val.roleid).name} "${val.gamename}" ${(val.sendmessages) ? "yes" : "no"} ${(val.removewheninactive) ? "yes" : "no"}`)}`);
 

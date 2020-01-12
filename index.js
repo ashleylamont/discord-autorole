@@ -145,8 +145,16 @@ client.once('ready', () => {
                                             gameName: rolebinding.gamename,
                                             roleName: roleName,
                                             guildName: guild.name
-                                        }));
+                                        })).catch(err => {
+                                            console.error(err);
+                                            console.error(`Error sending gave role message for ${roleName} to ${guildMember.displayName} on server ${guild.name}`);
+                                            console.log(`Guild is owned by ${guild.owner.user.username}#${guild.owner.user.discriminator}. Guild ID: ${guild.id}`);
+                                        });
                                     }
+                                }).catch(err => {
+                                    console.error(err);
+                                    console.error(`Error giving ${roleName} to ${guildMember.displayName} on server ${guild.name}`);
+                                    console.log(`Guild is owned by ${guild.owner.user.username}#${guild.owner.user.discriminator}. Guild ID: ${guild.id}`);
                                 });
                             }
                         }
@@ -156,7 +164,11 @@ client.once('ready', () => {
                                 currentActivity = guildMember.presence.activity.name.toLowerCase();
                             }
                             if (currentActivity !== rolebinding.gamename) {
-                                guildMember.roles.remove(rolebinding.roleid);
+                                guildMember.roles.remove(rolebinding.roleid).catch(err => {
+                                    console.error(err);
+                                    console.error(`Error removing ${roleName} from ${guildMember.displayName} on server ${guild.name}`);
+                                    console.log(`Guild is owned by ${guild.owner.user.username}#${guild.owner.user.discriminator}. Guild ID: ${guild.id}`);
+                                });
                                 console.log(`Took away the role ${roleName} from ${guildMember.displayName} on server ${guild.name}`);
                                 if (rolebinding.sendmessages) {
                                     let lng = client.serverConfigCache.find(val => {
@@ -167,7 +179,9 @@ client.once('ready', () => {
                                         gameName: rolebinding.gamename,
                                         roleName: roleName,
                                         guildName: guild.name
-                                    }));
+                                    })).catch(err => {
+                                        console.error(err);
+                                    });
                                 }
                             }
                         }

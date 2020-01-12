@@ -15,7 +15,7 @@ module.exports = class LocaleCommand extends Command {
                 duration: 10
             },
             guildOnly: true,
-            clientPermissions: ['SEND_MESSAGES', 'MANAGE_ROLES'],
+            clientPermissions: ['ADMINISTRATOR'],
             userPermissions: ['MANAGE_ROLES'],
             args: [
                 {
