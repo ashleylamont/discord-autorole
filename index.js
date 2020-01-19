@@ -110,6 +110,11 @@ client.once('ready', () => {
                         if (verbose) {
                             console.log(`Added ${guild.name} (${guild.id}) to the localisation database.`)
                         }
+                        if (!client.serverConfigCache.some((val) => {
+                            return val.serverid === res.rows[0].serverid
+                        })) {
+                            client.serverConfigCache.push(res.rows[0]);
+                        }
 
                     }).catch(err => {
                         console.log(err.stack);
