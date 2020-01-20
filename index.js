@@ -12,9 +12,9 @@ const Discord = require('discord.js');
 const {performance} = require('perf_hooks');
 
 // discord commando module
-const {CommandoClient} = require('discord.js-commando');
+const Commando = require('discord.js-commando');
 const path = require('path');
-const client = new CommandoClient({
+const client = new Commando.CommandoClient({
     commandPrefix: '!',
     owner: ownerId,
     invite: inviteURL
@@ -28,6 +28,12 @@ client.i18next = require('i18next');
 client.i18next.init(localisation).then(function (t) {
     // initialized and ready to go!
 });
+
+const sqlite = require('sqlite');
+
+client.setProvider(
+    sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
+).catch(console.error);
 
 // connect to top.gg
 const DBL = require("dblapi.js");

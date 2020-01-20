@@ -3,6 +3,7 @@ config.json
 .idea/
 package-lock.json
 index.js.old
+settings.sqlite3
 
 # Created by https://www.gitignore.io/api/node,windows
 # Edit at https://www.gitignore.io/?templates=node,windows
