@@ -48,7 +48,7 @@ module.exports = class LocaleCommand extends Command {
 
             let val = res.rows[0];
 
-            console.log(`User ${message.author.username} created a rolebinding (${val.rolebinding}) for ${gamename} and ${role.name} on ${message.guild.name}`);
+            message.client.log(`User ${message.author.username} created a rolebinding (${val.rolebinding}) for ${gamename} and ${role.name} on ${message.guild.name}`);
 
             let newEmbed = new message.client.discord.MessageEmbed()
                 .setTitle("Role Binding")
@@ -63,7 +63,7 @@ module.exports = class LocaleCommand extends Command {
             let lng = message.client.serverConfigCache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
-            console.error(err);
+            message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
 
         });

@@ -34,7 +34,7 @@ module.exports = class LocaleCommand extends Command {
             message.client.serverConfigCache.find(val => {
                 return val.serverid = message.guild.id
             }).language = language;
-            console.log(`Updated ${message.guild.name}'s language to use ${language}.`);
+            message.client.log(`Updated ${message.guild.name}'s language to use ${language}.`);
             let lng = message.client.serverConfigCache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
@@ -44,7 +44,7 @@ module.exports = class LocaleCommand extends Command {
             let lng = message.client.serverConfigCache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
-            console.error(err);
+            message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });
     }

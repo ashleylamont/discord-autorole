@@ -42,7 +42,7 @@ module.exports = class LocaleCommand extends Command {
                     let lng = message.client.serverConfigCache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
-                    console.error(err);
+                    message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
                 let val = res.rows[0];
@@ -57,7 +57,7 @@ module.exports = class LocaleCommand extends Command {
                     let lng = message.client.serverConfigCache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
-                    console.error(err);
+                    message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
                 message.client.postgresClient.query(`DELETE FROM rolebindings WHERE rolebinding=$1 AND serverid=$2 RETURNING *`, [rolebinding, message.guild.id]).then(() => {
@@ -68,7 +68,7 @@ module.exports = class LocaleCommand extends Command {
                     let lng = message.client.serverConfigCache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
-                    console.error(err);
+                    message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
             }
@@ -77,7 +77,7 @@ module.exports = class LocaleCommand extends Command {
             let lng = message.client.serverConfigCache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
-            console.error(err);
+            message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });
 
