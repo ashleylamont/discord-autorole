@@ -127,13 +127,15 @@ client.once('ready', () => {
                 if (res.rowCount === 0) {
                     client.postgresClient.query(`INSERT INTO serverconfig (serverid,language) VALUES ($1,$2)`, [guild.id, "en"]).then(res => {
 
-                        if (verbose) {
-                            log(`Added ${guild.name} (${guild.id}) to the localisation database.`)
-                        }
-                        if (!client.serverConfigCache.some((val) => {
-                            return val.serverid === res.rows[0].serverid
-                        })) {
-                            client.serverConfigCache.push(res.rows[0]);
+                        log(`Added ${guild.name} (${guild.id}) to the localisation database.`);
+                        if (res.rowCount === 0) {
+                            log(`Error adding ${guild.name} (${guild.id}) to the localisation database.`);
+                        } else {
+                            if (!client.serverConfigCache.some((val) => {
+                                return val.serverid === res.rows[0].serverid;
+                            })) {
+                                client.serverConfigCache.push(res.rows[0]);
+                            }
                         }
 
                     }).catch(err => {
