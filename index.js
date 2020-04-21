@@ -168,6 +168,9 @@ client.once('ready', () => {
                                             let lng = client.serverConfigCache.find(val => {
                                                 return val["serverid"] === guild.id
                                             })["language"];
+                                            if (lng === undefined) {
+                                                lng = "en"
+                                            }
                                             user.send(client.i18next.t("gaveRoleMsg", {
                                                 lng: lng,
                                                 gameName: rolebinding.gamename,
@@ -202,6 +205,9 @@ client.once('ready', () => {
                                         let lng = client.serverConfigCache.find(val => {
                                             return val["serverid"] === guild.id
                                         })["language"];
+                                        if (lng === undefined) {
+                                            lng = "en"
+                                        }
                                         user.send(client.i18next.t("removedRoleMsg", {
                                             lng: lng,
                                             gameName: rolebinding.gamename,

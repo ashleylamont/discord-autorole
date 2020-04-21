@@ -25,6 +25,9 @@ module.exports = class LocaleCommand extends Command {
                 let lng = message.client.serverConfigCache.find(val => {
                     return val["serverid"] === message.guild.id
                 })["language"];
+                if (lng === undefined) {
+                    lng = "en"
+                }
                 return message.say(message.client.i18next.t("getRolesNoneFound", {"lng": lng}))
             } else {
                 res.rows.forEach((val) => {
