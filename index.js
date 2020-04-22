@@ -48,7 +48,8 @@ client.registry
     ])
     .registerDefaultGroups()
     .registerDefaultCommands({
-        unknownCommand: false
+        unknownCommand: false,
+        help: false
     })
     .registerCommandsIn(path.join(__dirname, 'commands'));
 
@@ -131,9 +132,9 @@ client.once('ready', () => {
                         if (res.rowCount === 0) {
                             log(`Error adding ${guild.name} (${guild.id}) to the localisation database.`);
                         } else {
-                            if (!client.serverConfigCache.some((val) => {
+                            if (!(client.serverConfigCache.some((val) => {
                                 return val.serverid === res.rows[0].serverid;
-                            })) {
+                            }))) {
                                 client.serverConfigCache.push(res.rows[0]);
                             }
                         }

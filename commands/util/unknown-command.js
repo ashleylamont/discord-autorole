@@ -9,7 +9,8 @@ module.exports = class UnknownCommandCommand extends Command {
             description: 'Displays help information for when an unknown command is used.',
             examples: ['unknown-command kickeverybodyever'],
             unknown: true,
-            hidden: true
+            hidden: true,
+            guarded: true
         });
     }
 
