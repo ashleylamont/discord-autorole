@@ -102,6 +102,7 @@ client.postgresClient.query(`SELECT * FROM serverconfig`).then(res => {
     Sentry.captureException(err);
 });
 
+
 client.once('ready', () => {
     let log = function () {
         let LOG_PREFIX = new Date().getDate() + '.' + new Date().getMonth() + '.' + new Date().getFullYear() + ' / ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds();// 1. Convert args to a normal array
@@ -123,9 +124,8 @@ client.once('ready', () => {
         client.guilds.forEach((val) => {
             let guild = val;
 
-            client.postgresClient.query(`SELECT * FROM serverconfig WHERE serverid=$1`, [guild.id]).then(res => {
-
-                if (res.rowCount === 0) {
+            client.postgresClient.query('SELECT COUNT(*) FROM serverconfig WHERE serverid=$1', [guild.id]).then(res => {
+                if (res.rows[0].count === '0') {
                     client.postgresClient.query(`INSERT INTO serverconfig (serverid,language) VALUES ($1,$2)`, [guild.id, "en"]).then(res => {
 
                         log(`Added ${guild.name} (${guild.id}) to the localisation database.`);
@@ -133,9 +133,9 @@ client.once('ready', () => {
                             log(`Error adding ${guild.name} (${guild.id}) to the localisation database.`);
                         } else {
                             if (!(client.serverConfigCache.some((val) => {
-                                return val.serverid === res.rows[0].serverid;
+                                return val.serverid === guild.id.toString();
                             }))) {
-                                client.serverConfigCache.push(res.rows[0]);
+                                client.serverConfigCache.push({'serverid': guild.id.toString(), 'language': 'en'});
                             }
                         }
 
@@ -144,10 +144,6 @@ client.once('ready', () => {
                         Sentry.captureException(err);
                     });
                 }
-
-            }).catch(err => {
-                log(err.stack);
-                Sentry.captureException(err);
             });
 
             client.postgresClient.query(`SELECT * FROM rolebindings WHERE serverid=$1`, [guild.id]).then(res => {
