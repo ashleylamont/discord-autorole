@@ -1,5 +1,5 @@
 // Load config file
-const {prefix, token, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
+const {token, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
 
 // initialise sentry for error tracking
 const Sentry = require('@sentry/node');
@@ -161,9 +161,10 @@ client.once('ready', () => {
                         let user = guildMember.user;
                         if (guild.roles.get(rolebinding.roleid) !== undefined) {
                             let roleName = guild.roles.get(rolebinding.roleid).name;
+
                             if (!user.bot && guildMember.presence.activity !== null && guildMember.presence.activity.type === "PLAYING") {
                                 if (guildMember.roles.has(rolebinding.roleid) === false && guildMember.presence.activity.name.toLowerCase() === rolebinding.gamename) {
-                                    guildMember.roles.add(rolebinding.roleid).then(res => {
+                                    guildMember.roles.add(rolebinding.roleid).then(() => {
                                         log(`Gave ${guildMember.displayName} the role ${roleName} on server ${guild.name}`);
                                         if (rolebinding.sendmessages) {
                                             let lng = client.serverConfigCache.find(val => {
