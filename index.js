@@ -116,7 +116,11 @@ client.once('ready', () => {
     client.log = log;
 
     log(`Logged in as ${client.user.tag}! Ready to serve ${client.users.size} users on ${client.guilds.size} servers.`);
-    client.user.setActivity('@AutoRole help');
+    if (verbose) {
+        client.user.setActivity('@AutoRole help');
+    } else {
+        client.user.setActivity('MAINTENANCE');
+    }
 
     setInterval(function () {
         let t1 = performance.now();
