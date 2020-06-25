@@ -31,17 +31,17 @@ module.exports = class LocaleCommand extends Command {
     // noinspection JSCheckFunctionSignatures
     run(message, {language}) {
         message.client.postgresClient.query(`UPDATE serverconfig SET language=$1 WHERE serverid=$2`, [language, message.guild.id]).then(res => {
-            message.client.serverConfigCache.find(val => {
+            message.client.serverConfigCache.cache.find(val => {
                 return val.serverid = message.guild.id
             }).language = language;
             message.client.log(`Updated ${message.guild.name}'s language to use ${language}.`);
-            let lng = message.client.serverConfigCache.find(val => {
+            let lng = message.client.serverConfigCache.cache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
             return message.say(message.client.i18next.t("localeChanged", {"lng": lng}));
 
         }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
+            let lng = message.client.serverConfigCache.cache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
             if (lng === undefined) {

@@ -58,7 +58,7 @@ module.exports = class HelpCommand extends Command {
                 try {
                     messages.push(await msg.direct(help));
                     if (msg.channel.type !== 'dm') {
-                        let lng = msg.client.serverConfigCache.find(val => {
+                        let lng = msg.client.serverConfigCache.cache.find(val => {
                             return val["serverid"] === msg.guild.id
                         })["language"];
                         if (lng === undefined) {
@@ -107,7 +107,7 @@ module.exports = class HelpCommand extends Command {
                 }
 				`, {split: true}));
                 if (msg.channel.type !== 'dm') {
-                    let lng = msg.client.serverConfigCache.find(val => {
+                    let lng = msg.client.serverConfigCache.cache.find(val => {
                         return val["serverid"] === msg.guild.id
                     })["language"];
                     if (lng === undefined) {

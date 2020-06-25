@@ -50,7 +50,7 @@ module.exports = class LocaleCommand extends Command {
         message.client.postgresClient.query(`SELECT * FROM rolebindings WHERE rolebinding=$1 AND serverid=$2`, [rolebinding, message.guild.id]).then(res => {
 
             if (res.rowCount === 0) {
-                let lng = message.client.serverConfigCache.find(val => {
+                let lng = message.client.serverConfigCache.cache.find(val => {
                     return val["serverid"] === message.guild.id
                 })["language"];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
@@ -68,7 +68,7 @@ module.exports = class LocaleCommand extends Command {
                     return message.embed(newEmbed);
 
                 }).catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
+                    let lng = message.client.serverConfigCache.cache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
                     if (lng === undefined) {
@@ -80,7 +80,7 @@ module.exports = class LocaleCommand extends Command {
             }
 
         }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
+            let lng = message.client.serverConfigCache.cache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
             message.client.log(err);

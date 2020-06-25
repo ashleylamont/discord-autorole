@@ -33,13 +33,13 @@ module.exports = class LocaleCommand extends Command {
         message.client.postgresClient.query(`SELECT * FROM rolebindings WHERE rolebinding=$1 AND serverid=$2`, [rolebinding, message.guild.id]).then(res => {
 
             if (res.rowCount === 0) {
-                let lng = message.client.serverConfigCache.find(val => {
+                let lng = message.client.serverConfigCache.cache.find(val => {
                     return val["serverid"] === message.guild.id
                 })["language"];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
             } else {
                 message.say("Deleting the following role binding:").catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
+                    let lng = message.client.serverConfigCache.cache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
                     if (lng === undefined) {
@@ -57,7 +57,7 @@ module.exports = class LocaleCommand extends Command {
                     .addField("Send Messages?", (val.sendmessages) ? `Currently sending messages when I assign <@&${val.roleid}>` : `Not sending messages when I assign <@&${val.roleid}>`)
                     .addField("Remove Role?", (val.removewheninactive) ? `Currently removing <@&${val.roleid}> when users stop playing ${val.gamename}` : `Not removing <@&${val.roleid}> when users stop playing ${val.gamename}`);
                 message.embed(newEmbed).catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
+                    let lng = message.client.serverConfigCache.cache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
                     message.client.log(err);
@@ -65,10 +65,10 @@ module.exports = class LocaleCommand extends Command {
                 });
                 message.client.postgresClient.query(`DELETE FROM rolebindings WHERE rolebinding=$1 AND serverid=$2 RETURNING *`, [rolebinding, message.guild.id]).then(() => {
 
-                    return message.say(`Deleted the rolebinding.\nTo re-enable it type ${message.anyUsage(`create-rolebinding @${message.guild.roles.get(val.roleid).name} "${val.gamename}" ${(val.sendmessages) ? "yes" : "no"} ${(val.removewheninactive) ? "yes" : "no"}`)}`);
+                    return message.say(`Deleted the rolebinding.\nTo re-enable it type ${message.anyUsage(`create-rolebinding @${message.guild.roles.cache.get(val.roleid).name} "${val.gamename}" ${(val.sendmessages) ? "yes" : "no"} ${(val.removewheninactive) ? "yes" : "no"}`)}`);
 
                 }).catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
+                    let lng = message.client.serverConfigCache.cache.find(val => {
                         return val["serverid"] === message.guild.id
                     })["language"];
                     message.client.log(err);
@@ -77,7 +77,7 @@ module.exports = class LocaleCommand extends Command {
             }
 
         }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
+            let lng = message.client.serverConfigCache.cache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
             message.client.log(err);

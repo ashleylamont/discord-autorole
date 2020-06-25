@@ -29,7 +29,7 @@ module.exports = class LocaleCommand extends Command {
                 languages += ", " + val;
             }
         });
-        let lng = message.client.serverConfigCache.find(val => {
+        let lng = message.client.serverConfigCache.cache.find(val => {
             return val["serverid"] === message.guild.id
         })["language"];
         if (lng === undefined) {

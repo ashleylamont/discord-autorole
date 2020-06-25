@@ -1,5 +1,5 @@
 // Load config file
-const {token, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
+const {token, testToken, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
 
 // initialise sentry for error tracking
 const Sentry = require('@sentry/node');
@@ -109,17 +109,17 @@ client.once('ready', () => {
         let args = Array.prototype.slice.call(arguments);
         // 2. Prepend log prefix log string
         args.unshift(LOG_PREFIX + " ");
-        client.guilds.get('591956618145562627').channels.get('671213111767728148').send(args[1]);
+        client.guilds.cache.get('591956618145562627').channels.cache.get('671213111767728148').send(args[1]);
         // 3. Pass along arguments to console.log
         console.log.apply(console, args);
     };
     client.log = log;
 
     log(`Logged in as ${client.user.tag}! Ready to serve ${client.users.size} users on ${client.guilds.size} servers.`);
-    if (verbose) {
+    if (!verbose) {
         client.user.setActivity('@AutoRole help');
     } else {
-        client.user.setActivity('MAINTENANCE');
+        client.user.setActivity('Testing new features');
     }
 
     setInterval(function () {
@@ -159,15 +159,15 @@ client.once('ready', () => {
 
                         let guildMember = val;
                         let user = guildMember.user;
-                        if (guild.roles.get(rolebinding.roleid) !== undefined) {
-                            let roleName = guild.roles.get(rolebinding.roleid).name;
+                        if (guild.roles.cache.get(rolebinding.roleid) !== undefined) {
+                            let roleName = guild.roles.cache.get(rolebinding.roleid).name;
 
                             if (!user.bot && guildMember.presence.activity !== null && guildMember.presence.activity.type === "PLAYING") {
                                 if (guildMember.roles.has(rolebinding.roleid) === false && guildMember.presence.activity.name.toLowerCase() === rolebinding.gamename) {
                                     guildMember.roles.add(rolebinding.roleid).then(() => {
                                         log(`Gave ${guildMember.displayName} the role ${roleName} on server ${guild.name}`);
                                         if (rolebinding.sendmessages) {
-                                            let lng = client.serverConfigCache.find(val => {
+                                            let lng = client.serverConfigCache.cache.find(val => {
                                                 return val["serverid"] === guild.id
                                             })["language"];
                                             if (lng === undefined) {
@@ -204,7 +204,7 @@ client.once('ready', () => {
                                     });
                                     log(`Took away the role ${roleName} from ${guildMember.displayName} on server ${guild.name}`);
                                     if (rolebinding.sendmessages) {
-                                        let lng = client.serverConfigCache.find(val => {
+                                        let lng = client.serverConfigCache.cache.find(val => {
                                             return val["serverid"] === guild.id
                                         })["language"];
                                         if (lng === undefined) {
@@ -242,4 +242,8 @@ client.once('ready', () => {
 client.on('error', console.error);
 
 // login to Discord with your app's token
-client.login(token);
+if (verbose) {
+    client.login(testToken);
+} else {
+    client.login(token);
+}
