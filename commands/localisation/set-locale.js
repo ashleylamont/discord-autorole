@@ -30,7 +30,9 @@ module.exports = class LocaleCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     run(message, {language}) {
-        message.client.postgresClient.query(`UPDATE serverconfig SET language=$1 WHERE serverid=$2`, [language, message.guild.id]).then(res => {
+        message.client.postgresClient.query(`UPDATE serverconfig
+                                             SET language=$1
+                                             WHERE serverid = $2`, [language.toLowerCase(), message.guild.id]).then(res => {
             message.client.serverConfigCache.find(val => {
                 return val.serverid = message.guild.id
             }).language = language;

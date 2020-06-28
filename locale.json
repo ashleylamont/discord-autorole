@@ -4,7 +4,7 @@
     "es",
     "ru"
   ],
-  "debug": true,
+  "debug": false,
   "preload": [
     "en",
     "es",
