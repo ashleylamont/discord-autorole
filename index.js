@@ -1,5 +1,12 @@
+// get console args
+const args = require('minimist')(process.argv.slice(2));
+let verbose = false;
+if (args["_"].includes("verbose")) {
+    verbose = true;
+}
+
 // Load config file
-const {token, testToken, pgUser, pgPassword, pgDatabase, pgConnectonString, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
+const {token, testToken, pgUser, pgPassword, pgDatabase, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
 
 // initialise sentry for error tracking
 const Sentry = require('@sentry/node');
@@ -37,7 +44,20 @@ client.setProvider(
 
 // connect to top.gg
 const DBL = require("dblapi.js");
-const dbl = new DBL(topggToken, client);
+if (!verbose) {
+    const dbl = new DBL(topggToken, client);
+
+    // Optional events
+    dbl.on('posted', () => {
+        if (verbose) {
+            console.log('Server count posted!')
+        }
+    });
+
+    dbl.on('error', e => {
+        console.log(`Oops! ${e}`);
+    });
+}
 
 client.registry
     .registerDefaultTypes()
@@ -53,35 +73,15 @@ client.registry
     })
     .registerCommandsIn(path.join(__dirname, 'commands'));
 
-
-// Optional events
-dbl.on('posted', () => {
-    if (verbose) {
-        console.log('Server count posted!')
-    }
-});
-
-dbl.on('error', e => {
-    console.log(`Oops! ${e}`);
-});
-
 // connect to the postgres database
 const Postgres = require('pg');
 client.postgresClient = new Postgres.Client({
     user: pgUser,
     password: pgPassword,
     database: pgDatabase,
-    connectionString: pgConnectonString,
     host: pgHost,
     port: 5432
 });
-
-// get console args
-const args = require('minimist')(process.argv.slice(2));
-var verbose = false;
-if (args["_"].includes("verbose")) {
-    verbose = true;
-}
 
 console.log("Attempting to connect to the database.");
 client.postgresClient.connect(err => {
@@ -115,7 +115,7 @@ client.once('ready', () => {
     };
     client.log = log;
 
-    log(`Logged in as ${client.user.tag}! Ready to serve ${client.users.size} users on ${client.guilds.size} servers.`);
+    log(`Logged in as ${client.user.tag}! Ready to serve ${client.users.cache.size} users on ${client.guilds.cache.size} servers.`);
     if (!verbose) {
         client.user.setActivity('@AutoRole help');
     } else {
@@ -125,7 +125,7 @@ client.once('ready', () => {
     setInterval(function () {
         let t1 = performance.now();
 
-        client.guilds.forEach((val) => {
+        client.guilds.cache.each((val) => {
             let guild = val;
 
             client.postgresClient.query('SELECT COUNT(*) FROM serverconfig WHERE serverid=$1', [guild.id]).then(res => {
@@ -155,7 +155,7 @@ client.once('ready', () => {
                 res.rows.forEach((val) => {
                     let rolebinding = val;
                     let users = guild.members;
-                    users.forEach((val) => {
+                    users.each((val) => {
 
                         let guildMember = val;
                         let user = guildMember.user;
