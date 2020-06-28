@@ -22,7 +22,7 @@ module.exports = class LocaleCommand extends Command {
         message.client.postgresClient.query(`SELECT * FROM rolebindings WHERE serverid=$1`, [message.guild.id.toString()]).then(res => {
 
             if (res.rowCount === 0) {
-                let lng = message.client.serverConfigCache.cache.find(val => {
+                let lng = message.client.serverConfigCache.find(val => {
                     return val["serverid"] === message.guild.id
                 })["language"];
                 if (lng === undefined) {
@@ -43,7 +43,7 @@ module.exports = class LocaleCommand extends Command {
             }
 
         }).catch(err => {
-            let lng = message.client.serverConfigCache.cache.find(val => {
+            let lng = message.client.serverConfigCache.find(val => {
                 return val["serverid"] === message.guild.id
             })["language"];
             message.client.log(err);
