@@ -133,13 +133,13 @@ client.once('ready', () => {
         if (!newPresence.user.bot) {
             let currentActivities = [];
             for (let activity in newPresence.activities) {
-                currentActivities.push(newPresence.activities[activity].name.toLowerCase())
+                currentActivities.push(newPresence.activities[activity].name.toLowerCase().trim())
             }
 
             let previousActivities = [];
             if (oldPresence !== null && oldPresence !== undefined) {
                 for (let activity in oldPresence.activities) {
-                    previousActivities.push(oldPresence.activities[activity].name.toLowerCase())
+                    previousActivities.push(oldPresence.activities[activity].name.toLowerCase().trim())
                 }
             }
 
@@ -151,7 +151,7 @@ client.once('ready', () => {
                 }
             }
 
-            if (newActivity !== "" && newActivity !== "custom status") {
+            if (newActivity !== "" && newActivity !== "custom status" && newActivity !== "spotify") {
                 client.postgresClient.query('INSERT INTO gamesplayed(userid, gamename) VALUES ($1,$2) ON CONFLICT DO NOTHING', [newPresence.user.id.toString(), newActivity])
                     .catch(err => {
                         log(err.stack);
