@@ -70,7 +70,8 @@ client.registry
     .registerGroups([
         ['rolebindings', 'Role Binding Config Commands'],
         ['localisation', 'Localisation Commands'],
-        ['util', 'Utility Commands']
+        ['util', 'Utility Commands'],
+        ['games', 'Games Commands']
     ])
     .registerDefaultGroups()
     .registerDefaultCommands({

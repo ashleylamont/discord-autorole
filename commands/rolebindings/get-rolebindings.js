@@ -1,6 +1,6 @@
 const {Command} = require('discord.js-commando');
 
-module.exports = class LocaleCommand extends Command {
+module.exports = class RolebindingCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'get-rolebindings',
