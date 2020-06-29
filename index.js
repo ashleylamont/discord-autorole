@@ -24,7 +24,7 @@ const path = require('path');
 const client = new Commando.CommandoClient({
     commandPrefix: '!',
     owner: ownerId,
-    invite: inviteURL,/*
+    invite: inviteURL,
     ws: {
         intents: [
             'GUILD_PRESENCES',
@@ -32,7 +32,7 @@ const client = new Commando.CommandoClient({
             'GUILD_MESSAGES',
             'DIRECT_MESSAGES'
         ]
-    }*/
+    }
 });
 
 client.discord = Discord;
@@ -134,12 +134,36 @@ client.once('ready', () => {
             for (let activity in newPresence.activities) {
                 currentActivities.push(newPresence.activities[activity].name.toLowerCase())
             }
+
             let previousActivities = [];
             if (oldPresence !== null && oldPresence !== undefined) {
                 for (let activity in oldPresence.activities) {
                     previousActivities.push(oldPresence.activities[activity].name.toLowerCase())
                 }
             }
+
+            let newActivity = "";
+            for (let activity in currentActivities) {
+                if (!previousActivities.includes(currentActivities[activity])) {
+                    newActivity = currentActivities[activity];
+                    break
+                }
+            }
+
+            if (newActivity !== "") {
+                client.postgresClient.query('SELECT COUNT(*) FROM gamesplayed WHERE userid=$1 AND gamename=$2', [newPresence.user.id.toString(), newActivity])
+                    .then(res => {
+                        if (res.rows[0].count.toString() === "0") {
+                            client.postgresClient.query(`INSERT INTO gamesplayed (userid, gamename) VALUES ($1,$2)`, [newPresence.user.id.toString(), newActivity])
+                                .catch(err => {
+                                    log(err.stack);
+                                    Sentry.captureException(err);
+                                });
+                        }
+                    })
+            }
+
+
             let guildId = newPresence.guild.available ? newPresence.guild.id : "";
             client.postgresClient.query('SELECT * FROM rolebindings WHERE serverid=$1', [guildId])
                 .then(res => {
