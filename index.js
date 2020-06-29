@@ -152,16 +152,11 @@ client.once('ready', () => {
             }
 
             if (newActivity !== "") {
-                client.postgresClient.query('SELECT COUNT(*) FROM gamesplayed WHERE userid=$1 AND gamename=$2', [newPresence.user.id.toString(), newActivity])
-                    .then(res => {
-                        if (res.rows[0].count.toString() === "0") {
-                            client.postgresClient.query(`INSERT INTO gamesplayed (userid, gamename) VALUES ($1,$2)`, [newPresence.user.id.toString(), newActivity])
-                                .catch(err => {
-                                    log(err.stack);
-                                    Sentry.captureException(err);
-                                });
-                        }
-                    })
+                client.postgresClient.query('INSERT INTO gamesplayed(userid, gamename) VALUES ($1,$2) ON CONFLICT DO NOTHING', [newPresence.user.id.toString(), newActivity])
+                    .catch(err => {
+                        log(err.stack);
+                        Sentry.captureException(err);
+                    });
             }
 
 
