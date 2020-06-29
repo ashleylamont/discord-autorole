@@ -151,7 +151,7 @@ client.once('ready', () => {
                 }
             }
 
-            if (newActivity !== "") {
+            if (newActivity !== "" && newActivity !== "custom status") {
                 client.postgresClient.query('INSERT INTO gamesplayed(userid, gamename) VALUES ($1,$2) ON CONFLICT DO NOTHING', [newPresence.user.id.toString(), newActivity])
                     .catch(err => {
                         log(err.stack);

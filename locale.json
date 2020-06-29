@@ -34,7 +34,7 @@
         "editRoleNoneApplicable": "I'm sorry, there either aren't any role bindings with that ID, or they aren't available on this discord server.",
         "gamesServicesUpdate": "Games Services: {{status}}",
         "gamesServicesDisabled": "Games services are disabled, ask an administrator to use the command: `!configure-games on`",
-        "usersPlay": "The following users play {{gamename}}:"
+        "usersPlay": "The following users (if any) play {{gamename}}:"
       }
     },
     "es": {
