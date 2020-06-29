@@ -47,7 +47,21 @@ module.exports = class GamesCommand extends Command {
                         message.say(` - ${message.guild.member(val.userid).displayName} (${message.guild.member(val.userid).user.username}#${message.guild.member(val.userid).user.discriminator})`)
                     }
                 });
-
+                if (res.rowCount <= 3) {
+                    message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                        .then(res => {
+                            if (res.rowCount > 0) {
+                                let suggestions = [];
+                                res.rows.forEach(val => {
+                                    suggestions.push(val.gamename)
+                                });
+                                message.say(`Did you mean: ${suggestions.join(', ')}`)
+                            }
+                        }).catch(err => {
+                        message.client.log(err);
+                        return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
+                    });
+                }
             }).catch(err => {
                 message.client.log(err);
                 return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
