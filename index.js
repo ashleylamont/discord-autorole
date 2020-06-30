@@ -15,6 +15,9 @@ Sentry.init({dsn: sentryDSN});
 // require the discord.js module
 const Discord = require('discord.js');
 
+// require the embedbuilder module
+const EmbedBuilder = require('discord-embedbuilder');
+
 // load performance api
 const {performance} = require('perf_hooks');
 
@@ -30,12 +33,14 @@ const client = new Commando.CommandoClient({
             'GUILD_PRESENCES',
             'GUILDS',
             'GUILD_MESSAGES',
+            'GUILD_MESSAGE_REACTIONS',
             'DIRECT_MESSAGES'
         ]
     }
 });
 
 client.discord = Discord;
+client.embedbuilder = EmbedBuilder;
 // Load localisations and i18next.
 console.log("Initialising localisation modules and locale files.");
 let localisation = require('./locale.json');

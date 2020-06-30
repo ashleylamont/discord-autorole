@@ -49,6 +49,5 @@ module.exports = class RolebindingCommand extends Command {
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });
-
     }
 };

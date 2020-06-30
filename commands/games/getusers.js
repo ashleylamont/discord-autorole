@@ -41,13 +41,33 @@ module.exports = class GamesCommand extends Command {
             message.client.postgresClient.query(`SELECT *
                                                  FROM gamesplayed
                                                  WHERE gamename = $1`, [gamename.toLowerCase()]).then(res => {
-                message.say(message.client.i18next.t("usersPlay", {"lng": lng, "gamename": gamename}));
+                let users = [];
                 res.rows.forEach((val) => {
                     if (message.guild.member(val.userid)) {
-                        message.say(` - ${message.guild.member(val.userid).displayName} (${message.guild.member(val.userid).user.username}#${message.guild.member(val.userid).user.discriminator})`)
+                        users.push({"name": message.guild.member(val.userid).displayName, "value": `<@${val.userid}>`});
                     }
                 });
-                if (res.rowCount <= 3) {
+                if(users.length>0) {
+                    const builder = new message.client.embedbuilder()
+                        .setChannel(message.channel)
+                        .setTime(60000); // Time is in milliseconds
+                    let myEmbedArray = [];
+                    for (let i = 0; i < users.length; i++) {
+                        let page = Math.floor(i / 5);
+                        if (myEmbedArray[page] === undefined) {
+                            myEmbedArray.push(new message.client.discord.MessageEmbed())
+                        }
+                        myEmbedArray[page].addField(users[i].name, users[i].value);
+                    }
+                    builder
+                        .setEmbeds(myEmbedArray)
+                        .setTitle(message.client.i18next.t("usersPlay", {"lng": lng, "gamename": gamename}))
+                        .build();
+                }else{
+                    message.reply("No users found who play " + gamename + ".")
+                }
+                if (users.length <= 3) {
+                    // noinspection SqlResolve
                     message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
                         .then(res => {
                             if (res.rowCount > 0) {
@@ -67,7 +87,5 @@ module.exports = class GamesCommand extends Command {
                 return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
             });
         }
-
-
     }
 };
