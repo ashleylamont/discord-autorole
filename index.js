@@ -34,7 +34,8 @@ const client = new Commando.CommandoClient({
             'GUILDS',
             'GUILD_MESSAGES',
             'GUILD_MESSAGE_REACTIONS',
-            'DIRECT_MESSAGES'
+            'DIRECT_MESSAGES',
+            'GUILD_MEMBERS'
         ]
     }
 });
@@ -169,7 +170,7 @@ client.once('ready', () => {
             client.postgresClient.query('SELECT * FROM rolebindings WHERE serverid=$1', [guildId])
                 .then(res => {
                     res.rows.forEach((roleBinding) => {
-                        if (newPresence.guild.roles.cache.get(roleBinding.roleid) !== undefined) {
+                        if (newPresence.guild.roles.cache.get(roleBinding.roleid) !== undefined && newPresence.guild.id === roleBinding.serverid) {
                             let roleName = newPresence.guild.roles.cache.get(roleBinding.roleid).name;
                             if (newPresence.member.roles.cache.has(roleBinding.roleid) === false && currentActivities.includes(roleBinding.gamename.toLowerCase())) {
                                 newPresence.member.roles.add(roleBinding.roleid).then(() => {

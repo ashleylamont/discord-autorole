@@ -63,10 +63,10 @@ module.exports = class GamesCommand extends Command {
                         .setEmbeds(myEmbedArray)
                         .setTitle(message.client.i18next.t("usersPlay", {"lng": lng, "gamename": gamename}))
                         .build();
-                }else{
+                } else {
                     message.reply("No users found who play " + gamename + ".")
                 }
-                if (users.length <= 3) {
+                if (users.length < 2) {
                     // noinspection SqlResolve
                     message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
                         .then(res => {
