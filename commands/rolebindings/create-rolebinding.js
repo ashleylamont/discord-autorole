@@ -57,7 +57,48 @@ module.exports = class RolebindingCommand extends Command {
                 .addField("Rolebinding ID", val.rolebinding, true)
                 .addField("Send Messages?", (val.sendmessages) ? `Currently sending messages when I assign <@&${val.roleid}>` : `Not sending messages when I assign <@&${val.roleid}>`)
                 .addField("Remove Role?", (val.removewheninactive) ? `Currently removing <@&${val.roleid}> when users stop playing ${val.gamename}` : `Not removing <@&${val.roleid}> when users stop playing ${val.gamename}`);
-            return message.embed(newEmbed);
+            message.embed(newEmbed);
+
+            message.client.postgresClient.query('SELECT * FROM gamefrequency WHERE gamename = $1', [gamename.toLowerCase()])
+                .then(res => {
+                    if (res.rowCount === 0) {
+                        message.say("I've never seen anybody play that game before, check you spelt it right and make sure you put the \"game name\" in quotes if it has multiple words in it.");
+                        // noinspection SqlResolve
+                        message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                            .then(res => {
+                                if (res.rowCount > 0) {
+                                    let suggestions = [];
+                                    res.rows.forEach(val => {
+                                        suggestions.push(val.gamename)
+                                    });
+                                    message.say(`Did you mean: ${suggestions.join(', ')}`);
+                                    message.say('Use the `edit-rolebinding` command to change the game name.')
+                                }
+                            }).catch(err => {
+                            message.client.log(err);
+                            return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
+                        });
+                    } else {
+                        if (res.rows[0].count < 10) {
+                            message.say("I've haven't seen many people play that game before, check you spelt it right and make sure you put the \"game name\" in quotes if it has multiple words in it.");
+                            // noinspection SqlResolve
+                            message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                                .then(res => {
+                                    if (res.rowCount > 0) {
+                                        let suggestions = [];
+                                        res.rows.forEach(val => {
+                                            suggestions.push(val.gamename)
+                                        });
+                                        message.say(`Did you mean: ${suggestions.join(', ')}`);
+                                        message.say('Use the `edit-rolebinding` command to change the game name.')
+                                    }
+                                }).catch(err => {
+                                message.client.log(err);
+                                return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
+                            });
+                        }
+                    }
+                })
 
         }).catch(err => {
             let lng = message.client.serverConfigCache.find(val => {
@@ -68,7 +109,6 @@ module.exports = class RolebindingCommand extends Command {
             }
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
-
         });
     }
 };
