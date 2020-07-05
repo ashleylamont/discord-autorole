@@ -68,7 +68,7 @@ module.exports = class GamesCommand extends Command {
                 }
                 if (users.length < 2) {
                     // noinspection SqlResolve
-                    message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                    message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.3 ORDER BY similarity', [gamename.toLowerCase().trim()])
                         .then(res => {
                             if (res.rowCount > 0) {
                                 let suggestions = [];

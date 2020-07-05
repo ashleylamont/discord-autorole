@@ -72,7 +72,7 @@ module.exports = class RolebindingCommand extends Command {
                             if (res.rowCount === 0) {
                                 message.say("I've never seen anybody play that game before, check you spelt it right and make sure you put the \"game name\" in quotes if it has multiple words in it.");
                                 // noinspection SqlResolve
-                                message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                                message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.3 ORDER BY similarity', [gamename.toLowerCase().trim()])
                                     .then(res => {
                                         if (res.rowCount > 0) {
                                             let suggestions = [];
@@ -90,7 +90,7 @@ module.exports = class RolebindingCommand extends Command {
                                 if (res.rows[0].count < 10) {
                                     message.say("I've haven't seen many people play that game before, check you spelt it right and make sure you put the \"game name\" in quotes if it has multiple words in it.");
                                     // noinspection SqlResolve
-                                    message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.2 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                                    message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.3 ORDER BY similarity', [gamename.toLowerCase().trim()])
                                         .then(res => {
                                             if (res.rowCount > 0) {
                                                 let suggestions = [];
