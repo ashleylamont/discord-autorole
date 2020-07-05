@@ -14,14 +14,7 @@ module.exports = class LocaleCommand extends Command {
             },
             guildOnly: true,
             clientPermissions: ['SEND_MESSAGES'],
-            userPermissions: ['MANAGE_GUILD'],
-            args: [
-                {
-                    key: 'status',
-                    prompt: 'Would you like to enable or disable these functions? Type yes/no',
-                    type: 'boolean'
-                }
-            ]
+            userPermissions: ['MANAGE_GUILD']
         });
     }
 

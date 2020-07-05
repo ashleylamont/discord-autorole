@@ -4,7 +4,7 @@ module.exports = class RolebindingCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'get-rolebindings',
-            aliases: ['get-roles'],
+            aliases: ['get-roles', 'get-rolebinding', 'getrolebindings', 'gr'],
             group: 'rolebindings',
             memberName: 'get-rolebindings',
             description: 'Returns all current rolebindings on your server.',

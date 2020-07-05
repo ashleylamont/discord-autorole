@@ -4,7 +4,7 @@ module.exports = class RolebindingCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'edit-rolebinding',
-            aliases: ['edit-role'],
+            aliases: ['edit-role', 'editrolebinding', 'er'],
             group: 'rolebindings',
             memberName: 'edit-rolebinding',
             description: 'Modifies an existing rolebinding.',

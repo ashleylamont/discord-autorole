@@ -4,7 +4,7 @@ module.exports = class GamesCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'configure-games',
-            aliases: ['set-games', 'enable-games', 'disable-games'],
+            aliases: ['set-games', 'enable-games', 'disable-games', 'configure', 'config'],
             group: 'games',
             memberName: 'configure-games',
             description: 'Enables or disables game-tracking/finding services on a server.',
@@ -21,7 +21,8 @@ module.exports = class GamesCommand extends Command {
                     prompt: 'Would you like to enable or disable these functions? Type yes/no',
                     type: 'boolean'
                 }
-            ]
+            ],
+            hidden: true
         });
     }
 

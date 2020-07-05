@@ -4,7 +4,7 @@ module.exports = class RolebindingCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'delete-rolebinding',
-            aliases: ['delete-role', 'clear-role'],
+            aliases: ['delete-role', 'clear-role', 'deleterolebinding', 'dr'],
             group: 'rolebindings',
             memberName: 'delete-rolebinding',
             description: 'Deletes an existing rolebinding.',

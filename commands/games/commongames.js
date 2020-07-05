@@ -4,7 +4,7 @@ module.exports = class GamesCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'common-games',
-            aliases: ['get-common', 'find-common', 'common'],
+            aliases: ['get-common', 'find-common', 'common', 'cg', 'commongames'],
             group: 'games',
             memberName: 'common-games',
             description: 'Fetches all of the games that you and a mentioned user share.',
