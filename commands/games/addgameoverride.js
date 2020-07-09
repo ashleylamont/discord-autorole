@@ -29,12 +29,29 @@ module.exports = class GamesCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     run(message, {gamename}) {
-        message.client.postgresClient.query('INSERT INTO gamesplayed(userid, gamename) VALUES ($1,$2) ON CONFLICT DO NOTHING', [message.author.id.toString(), gamename.toLowerCase().trim()])
-            .then(() => {
-                message.reply(`Added ${gamename} to the database.`)
-            })
-            .catch(err => {
-                console.error(err.stack);
-            });
+        if (message.guild === null || message.guild === undefined) {
+            let status = true;
+        } else {
+            let status = message.client.serverConfigCache.find(val => {
+                return val["serverid"] === message.guild.id
+            })["gamesservices"];
+        }
+        let lng = message.client.serverConfigCache.find(val => {
+            return val["serverid"] === message.guild.id
+        })["language"];
+        if (lng === undefined) {
+            lng = "en"
+        }
+        if (!status) {
+            return message.say(message.client.i18next.t("gamesServicesDisabled", {"lng": lng}))
+        } else {
+            message.client.postgresClient.query('INSERT INTO gamesplayed(userid, gamename) VALUES ($1,$2) ON CONFLICT DO NOTHING', [message.author.id.toString(), gamename.toLowerCase().trim()])
+                .then(() => {
+                    message.reply(`Added ${gamename} to the database.`)
+                })
+                .catch(err => {
+                    console.error(err.stack);
+                });
+        }
     }
 };

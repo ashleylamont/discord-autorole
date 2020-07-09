@@ -26,22 +26,35 @@ module.exports = class GamesCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     run(message, {user}) {
-        if (message.author === user) {
-            return message.reply("You can't search yourself.")
-        } else if (user.bot) {
-            return message.reply("You can't search a bot.")
+        let status = message.client.serverConfigCache.find(val => {
+            return val["serverid"] === message.guild.id
+        })["gamesservices"];
+        let lng = message.client.serverConfigCache.find(val => {
+            return val["serverid"] === message.guild.id
+        })["language"];
+        if (lng === undefined) {
+            lng = "en"
+        }
+        if (!status) {
+            return message.say(message.client.i18next.t("gamesServicesDisabled", {"lng": lng}))
         } else {
-            message.client.postgresClient.query('SELECT gamename, count(*) from gamesplayed WHERE userid = $1 OR userid = $2 GROUP BY gamename HAVING COUNT(*) > 1;', [message.author.id, user.id])
-                .then(res => {
-                    if (res.rowCount > 0) {
-                        let rows = res.rows.map(row => {
-                            return `"${row.gamename}"`
-                        });
-                        return message.say("You both play: " + rows.join(", "))
-                    } else {
-                        return message.say("Either you two don't share any games, or I haven't spotted you playing them before.")
-                    }
-                })
+            if (message.author === user) {
+                return message.reply("You can't search yourself.")
+            } else if (user.bot) {
+                return message.reply("You can't search a bot.")
+            } else {
+                message.client.postgresClient.query('SELECT gamename, count(*) from gamesplayed WHERE userid = $1 OR userid = $2 GROUP BY gamename HAVING COUNT(*) > 1;', [message.author.id, user.id])
+                    .then(res => {
+                        if (res.rowCount > 0) {
+                            let rows = res.rows.map(row => {
+                                return `"${row.gamename}"`
+                            });
+                            return message.say("You both play: " + rows.join(", "))
+                        } else {
+                            return message.say("Either you two don't share any games, or I haven't spotted you playing them before.")
+                        }
+                    })
+            }
         }
     }
 };
