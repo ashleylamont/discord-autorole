@@ -22,7 +22,7 @@ module.exports = class GamesCommand extends Command {
                     type: 'boolean'
                 }
             ],
-            hidden: true
+            hidden: false
         });
     }
 

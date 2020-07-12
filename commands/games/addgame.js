@@ -28,10 +28,11 @@ module.exports = class GamesCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     run(message, {gamename}) {
+        let status;
         if (message.guild === null || message.guild === undefined) {
-            let status = true;
+            status = true;
         } else {
-            let status = message.client.serverConfigCache.find(val => {
+            status = message.client.serverConfigCache.find(val => {
                 return val["serverid"] === message.guild.id
             })["gamesservices"];
         }
