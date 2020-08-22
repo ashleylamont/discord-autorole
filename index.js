@@ -169,60 +169,65 @@ const init = async function () {
 
                 let guildId = newPresence.guild.available ? newPresence.guild.id : "";
                 client.postgresClient.query('SELECT * FROM rolebindings WHERE serverid=$1', [guildId])
-                    .then(res => {
-                        res.rows.forEach((roleBinding) => {
-                            if (newPresence.guild.roles.cache.get(roleBinding.roleid) !== undefined && newPresence.guild.id === roleBinding.serverid) {
-                                let roleName = newPresence.guild.roles.cache.get(roleBinding.roleid).name;
-                                if (newPresence.member.roles.cache.has(roleBinding.roleid) === false && currentActivities.includes(roleBinding.gamename.toLowerCase())) {
-                                    newPresence.member.roles.add(roleBinding.roleid).then(() => {
-                                        log(`Gave ${newPresence.member.displayName} the role ${roleName} on server ${newPresence.guild.name}`);
-                                        if (roleBinding.sendmessages) {
-                                            let lng = client.serverConfigCache.find(val => {
-                                                return val["serverid"] === guildId
-                                            })["language"];
-                                            if (lng === undefined) {
-                                                lng = "en"
+                    .then((res) => {
+                        res.rows.forEach(async (roleBinding) => {
+                            let giveToNoRoles = await client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid=$1', [guildId]);
+                            giveToNoRoles = giveToNoRoles.rows[0].givetonoroles;
+                            let userRoleCount = newPresence.member.roles.cache.size;
+                            if (giveToNoRoles || userRoleCount > 1) {
+                                if (newPresence.guild.roles.cache.get(roleBinding.roleid) !== undefined && newPresence.guild.id === roleBinding.serverid) {
+                                    let roleName = newPresence.guild.roles.cache.get(roleBinding.roleid).name;
+                                    if (newPresence.member.roles.cache.has(roleBinding.roleid) === false && currentActivities.includes(roleBinding.gamename.toLowerCase())) {
+                                        newPresence.member.roles.add(roleBinding.roleid).then(() => {
+                                            log(`Gave ${newPresence.member.displayName} the role ${roleName} on server ${newPresence.guild.name}`);
+                                            if (roleBinding.sendmessages) {
+                                                let lng = client.serverConfigCache.find(val => {
+                                                    return val["serverid"] === guildId
+                                                })["language"];
+                                                if (lng === undefined) {
+                                                    lng = "en"
+                                                }
+                                                newPresence.user.send(client.i18next.t("gaveRoleMsg", {
+                                                    lng: lng,
+                                                    gameName: roleBinding.gamename,
+                                                    roleName: roleName,
+                                                    guildName: newPresence.guild.name
+                                                })).catch(err => {
+                                                    console.error(err);
+                                                    console.error(`Error sending gave-role message for ${roleName} to ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
+                                                    log(`Guild is owned by ${newPresence.guild.owner.user.username}#${newPresence.guild.owner.user.discriminator}. Guild ID: ${guildId}`);
+                                                });
                                             }
-                                            newPresence.user.send(client.i18next.t("gaveRoleMsg", {
-                                                lng: lng,
-                                                gameName: roleBinding.gamename,
-                                                roleName: roleName,
-                                                guildName: newPresence.guild.name
-                                            })).catch(err => {
-                                                console.error(err);
-                                                console.error(`Error sending gave-role message for ${roleName} to ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
-                                                log(`Guild is owned by ${newPresence.guild.owner.user.username}#${newPresence.guild.owner.user.discriminator}. Guild ID: ${guildId}`);
-                                            });
-                                        }
-                                    }).catch(err => {
-                                        console.error(err);
-                                        console.error(`Error giving ${roleName} to ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
-                                        log(`Guild is owned by ${newPresence.guild.owner.user.username}#${newPresence.guild.owner.user.discriminator}. Guild ID: ${guildId}`);
-                                    });
-                                }
-                                if (roleBinding.removewheninactive && newPresence.member.roles.cache.has(roleBinding.roleid)) {
-                                    if (!currentActivities.includes(roleBinding.gamename) && previousActivities.includes(roleBinding.gamename)) {
-                                        newPresence.member.roles.remove(roleBinding.roleid).catch(err => {
+                                        }).catch(err => {
                                             console.error(err);
-                                            console.error(`Error removing ${roleName} from ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
+                                            console.error(`Error giving ${roleName} to ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
                                             log(`Guild is owned by ${newPresence.guild.owner.user.username}#${newPresence.guild.owner.user.discriminator}. Guild ID: ${guildId}`);
                                         });
-                                        log(`Took away the role ${roleName} from ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
-                                        if (roleBinding.sendmessages) {
-                                            let lng = client.serverConfigCache.find(val => {
-                                                return val["serverid"] === guildId
-                                            })["language"];
-                                            if (lng === undefined) {
-                                                lng = "en"
-                                            }
-                                            newPresence.user.send(client.i18next.t("removedRoleMsg", {
-                                                lng: lng,
-                                                gameName: roleBinding.gamename,
-                                                roleName: roleName,
-                                                guildName: newPresence.guild.name
-                                            })).catch(err => {
+                                    }
+                                    if (roleBinding.removewheninactive && newPresence.member.roles.cache.has(roleBinding.roleid)) {
+                                        if (!currentActivities.includes(roleBinding.gamename) && previousActivities.includes(roleBinding.gamename)) {
+                                            newPresence.member.roles.remove(roleBinding.roleid).catch(err => {
                                                 console.error(err);
+                                                console.error(`Error removing ${roleName} from ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
+                                                log(`Guild is owned by ${newPresence.guild.owner.user.username}#${newPresence.guild.owner.user.discriminator}. Guild ID: ${guildId}`);
                                             });
+                                            log(`Took away the role ${roleName} from ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
+                                            if (roleBinding.sendmessages) {
+                                                let lng = client.serverConfigCache.find(val => {
+                                                    return val["serverid"] === guildId
+                                                })["language"];
+                                                if (lng === undefined) {
+                                                    lng = "en"
+                                                }
+                                                newPresence.user.send(client.i18next.t("removedRoleMsg", {
+                                                    lng: lng,
+                                                    gameName: roleBinding.gamename,
+                                                    roleName: roleName,
+                                                    guildName: newPresence.guild.name
+                                                })).catch(err => {
+                                                    console.error(err);
+                                                });
+                                            }
                                         }
                                     }
                                 }
