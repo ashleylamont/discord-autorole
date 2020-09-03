@@ -56,25 +56,27 @@ client.setProvider(
     sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
 ).catch(console.error);
 
-const getServerConfig = async function (serverid) {
-    if (!serverid) {
+const getServerConfig = async function (server) {
+    if (!server) {
+        console.error("Tried to get server config for dm channel.");
         return {
-            serverid: serverid,
+            serverid: undefined,
             language: 'en',
-            gamesservices: false,
+            gameservices: false,
             unknownmessage: true,
-            givetonoroles: false
+            givetonoroles: true
         }
     }
-    let res = await client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid = $1', [serverid]);
+    let res = await client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid = $1', [server.id]);
     if (res.rows.length === 0) {
-        await client.postgresClient.query(`INSERT INTO serverconfig (serverid,language) VALUES ($1,$2)`, [serverid, "en"]);
+        await client.postgresClient.query(`INSERT INTO serverconfig (serverid,language) VALUES ($1,$2)`, [server.id, "en"]);
+        console.log(`Added ${server.name} to the database.`);
         return {
-            serverid: serverid,
+            serverid: server.id,
             language: 'en',
             gamesservices: false,
             unknownmessage: true,
-            givetonoroles: false
+            givetonoroles: true
         }
     } else {
         return res.rows[0];

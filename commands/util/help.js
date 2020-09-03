@@ -58,7 +58,7 @@ module.exports = class HelpCommand extends Command {
                 try {
                     messages.push(await msg.direct(help));
                     if (msg.channel.type !== 'dm') {
-                        let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                        let lng = (await msg.client.getServerConfig(msg.guild))['language'];
                         if (lng === undefined) {
                             lng = "en"
                         }
@@ -105,7 +105,7 @@ module.exports = class HelpCommand extends Command {
                 }
 				`, {split: true}));
                 if (msg.channel.type !== 'dm') {
-                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                    let lng = (await msg.client.getServerConfig(msg.guild))['language'];
                     if (lng === undefined) {
                         lng = "en"
                     }

@@ -36,11 +36,11 @@ module.exports = class RolebindingCommand extends Command {
                                                AND serverid = $2`, [rolebinding, message.guild.id]).then(async (res) => {
 
             if (res.rowCount === 0) {
-                let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                let lng = (await message.client.getServerConfig(message.guild))['language'];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
             } else {
                 message.say("Deleting the following role binding:").catch(async (err) => {
-                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                    let lng = (await message.client.getServerConfig(message.guild))['language'];
                     if (lng === undefined) {
                         lng = "en"
                     }
@@ -56,7 +56,7 @@ module.exports = class RolebindingCommand extends Command {
                     .addField("Send Messages?", (val.sendmessages) ? `Currently sending messages when I assign <@&${val.roleid}>` : `Not sending messages when I assign <@&${val.roleid}>`)
                     .addField("Remove Role?", (val.removewheninactive) ? `Currently removing <@&${val.roleid}> when users stop playing ${val.gamename}` : `Not removing <@&${val.roleid}> when users stop playing ${val.gamename}`);
                 message.embed(newEmbed).catch(async (err) => {
-                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                    let lng = (await message.client.getServerConfig(message.guild))['language'];
                     message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
@@ -69,14 +69,14 @@ module.exports = class RolebindingCommand extends Command {
                     return message.say(`Deleted the rolebinding.\nTo re-enable it type ${message.anyUsage(`create-rolebinding @${message.guild.roles.cache.get(val.roleid).name} "${val.gamename}" ${(val.sendmessages) ? "yes" : "no"} ${(val.removewheninactive) ? "yes" : "no"}`)}`);
 
                 }).catch(async (err) => {
-                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                    let lng = (await message.client.getServerConfig(message.guild))['language'];
                     message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
             }
 
         }).catch(async (err) => {
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });

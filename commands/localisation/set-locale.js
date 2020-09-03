@@ -34,11 +34,11 @@ module.exports = class LocaleCommand extends Command {
                                              SET language=$1
                                              WHERE serverid = $2`, [language.toLowerCase(), message.guild.id]).then(async (res) => {
             message.client.log(`Updated ${message.guild.name}'s language to use ${language}.`);
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             return message.say(message.client.i18next.t("localeChanged", {"lng": lng}));
 
         }).catch(async (err) => {
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             if (lng === undefined) {
                 lng = "en"
             }

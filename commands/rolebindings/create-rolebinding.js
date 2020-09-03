@@ -101,7 +101,7 @@ module.exports = class RolebindingCommand extends Command {
                 })
 
         }).catch(async (err) => {
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             if (lng === undefined) {
                 lng = "en"
             }

@@ -33,14 +33,14 @@ module.exports = class GamesCommand extends Command {
                                              WHERE serverid = $2`, [status, message.guild.id])
             .then(async (res) => {
                 message.client.log(`Updated ${message.guild.name}'s gamesservice status to be ${status ? 'enabled' : 'disabled'}.`);
-                let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                let lng = (await message.client.getServerConfig(message.guild))['language'];
                 return message.say(message.client.i18next.t("gamesServicesUpdate", {
                     "lng": lng,
                     "status": (status ? '✅' : '❌')
                 }));
 
             }).catch(async (err) => {
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             if (lng === undefined) {
                 lng = "en"
             }

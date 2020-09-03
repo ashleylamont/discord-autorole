@@ -26,11 +26,12 @@ module.exports = class GamesCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     async run(message, {gamename}) {
-        let status = await message.client.getServerConfig(message.guild.id)['gamesservices'];
-        let lng = await message.client.getServerConfig(message.guild.id)['language'];
+        let status = (await message.client.getServerConfig(message.guild))['gamesservices'];
+        let lng = (await message.client.getServerConfig(message.guild))['language'];
         if (lng === undefined) {
             lng = "en"
         }
+        console.log(status);
         if (!status) {
             return message.say(message.client.i18next.t("gamesServicesDisabled", {"lng": lng}))
         } else {

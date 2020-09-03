@@ -24,7 +24,7 @@ module.exports = class RolebindingCommand extends Command {
                                              WHERE serverid = $1`, [message.guild.id.toString()]).then(async (res) => {
 
             if (res.rowCount === 0) {
-                let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                let lng = (await message.client.getServerConfig(message.guild))['language'];
                 if (lng === undefined) {
                     lng = "en"
                 }
@@ -43,7 +43,7 @@ module.exports = class RolebindingCommand extends Command {
             }
 
         }).catch(async (err) => {
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });

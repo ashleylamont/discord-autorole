@@ -29,7 +29,7 @@ module.exports = class LocaleCommand extends Command {
                 languages += ", " + val;
             }
         });
-        let lng = await message.client.getServerConfig(message.guild.id)['language'];
+        let lng = (await message.client.getServerConfig(message.guild))['language'];
         if (lng === undefined) {
             lng = "en"
         }

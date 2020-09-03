@@ -53,7 +53,7 @@ module.exports = class RolebindingCommand extends Command {
                                                AND serverid = $2`, [rolebinding, message.guild.id]).then(async (res) => {
 
             if (res.rowCount === 0) {
-                let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                let lng = (await message.client.getServerConfig(message.guild))['language'];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
             } else {
                 message.client.postgresClient.query(`UPDATE rolebindings
@@ -117,7 +117,7 @@ module.exports = class RolebindingCommand extends Command {
                         })
 
                 }).catch(async (err) => {
-                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
+                    let lng = (await message.client.getServerConfig(message.guild))['language'];
                     if (lng === undefined) {
                         lng = "en"
                     }
@@ -127,7 +127,7 @@ module.exports = class RolebindingCommand extends Command {
             }
 
         }).catch(async (err) => {
-            let lng = await message.client.getServerConfig(message.guild.id)['language'];
+            let lng = (await message.client.getServerConfig(message.guild))['language'];
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });

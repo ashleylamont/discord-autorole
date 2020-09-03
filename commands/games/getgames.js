@@ -28,8 +28,8 @@ module.exports = class GamesCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     async run(message, {user}) {
-        let status = await message.client.getServerConfig(message.guild.id)["gamesservices"];
-        let lng = await message.client.getServerConfig(message.guild.id)['language'];
+        let status = (await message.client.getServerConfig(message.guild))["gamesservices"];
+        let lng = (await message.client.getServerConfig(message.guild))['language'];
         if (lng === undefined) {
             lng = "en"
         }

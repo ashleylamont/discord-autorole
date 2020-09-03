@@ -33,9 +33,9 @@ module.exports = class GamesCommand extends Command {
         if (message.guild === null || message.guild === undefined) {
             status = true;
         } else {
-            status = await message.client.getServerConfig(message.guild.id)['gamesservices'];
+            status = (await message.client.getServerConfig(message.guild))['gamesservices'];
         }
-        let lng = await message.client.getServerConfig(message.guild.id)['language'];
+        let lng = (await message.client.getServerConfig(message.guild))['language'];
         if (lng === undefined) {
             lng = "en"
         }
