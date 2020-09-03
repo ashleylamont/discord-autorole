@@ -45,17 +45,25 @@ module.exports = class RolebindingCommand extends Command {
     }
 
     // noinspection JSCheckFunctionSignatures
-    run(message, {rolebinding, role, gamename, sendMessages, removeWhenInactive}) {
+    async run(message, {rolebinding, role, gamename, sendMessages, removeWhenInactive}) {
 
-        message.client.postgresClient.query(`SELECT * FROM rolebindings WHERE rolebinding=$1 AND serverid=$2`, [rolebinding, message.guild.id]).then(res => {
+        message.client.postgresClient.query(`SELECT *
+                                             FROM rolebindings
+                                             WHERE rolebinding = $1
+                                               AND serverid = $2`, [rolebinding, message.guild.id]).then(async (res) => {
 
             if (res.rowCount === 0) {
-                let lng = message.client.serverConfigCache.find(val => {
-                    return val["serverid"] === message.guild.id
-                })["language"];
+                let lng = await message.client.getServerConfig(message.guild.id)['language'];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
             } else {
-                message.client.postgresClient.query(`UPDATE rolebindings SET roleid=$1, gamename=$2, sendmessages=$3, removewheninactive=$4 WHERE rolebinding=$5 AND serverid=$6 RETURNING *`, [role.id, gamename.toLowerCase(), sendMessages, removeWhenInactive, rolebinding, message.guild.id]).then(res => {
+                message.client.postgresClient.query(`UPDATE rolebindings
+                                                     SET roleid=$1,
+                                                         gamename=$2,
+                                                         sendmessages=$3,
+                                                         removewheninactive=$4
+                                                     WHERE rolebinding = $5
+                                                       AND serverid = $6
+                                                     RETURNING *`, [role.id, gamename.toLowerCase(), sendMessages, removeWhenInactive, rolebinding, message.guild.id]).then(res => {
 
                     let val = res.rows[0];
                     let newEmbed = new message.client.discord.MessageEmbed()
@@ -108,10 +116,8 @@ module.exports = class RolebindingCommand extends Command {
                             }
                         })
 
-                }).catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
-                        return val["serverid"] === message.guild.id
-                    })["language"];
+                }).catch(async (err) => {
+                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
                     if (lng === undefined) {
                         lng = "en"
                     }
@@ -120,10 +126,8 @@ module.exports = class RolebindingCommand extends Command {
                 });
             }
 
-        }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
-                return val["serverid"] === message.guild.id
-            })["language"];
+        }).catch(async (err) => {
+            let lng = await message.client.getServerConfig(message.guild.id)['language'];
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });

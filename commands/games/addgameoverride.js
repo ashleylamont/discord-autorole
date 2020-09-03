@@ -28,18 +28,14 @@ module.exports = class GamesCommand extends Command {
     }
 
     // noinspection JSCheckFunctionSignatures
-    run(message, {gamename}) {
+    async run(message, {gamename}) {
         let status;
         if (message.guild === null || message.guild === undefined) {
             status = true;
         } else {
-            status = message.client.serverConfigCache.find(val => {
-                return val["serverid"] === message.guild.id
-            })["gamesservices"];
+            status = await message.client.getServerConfig(message.guild.id)['gamesservices'];
         }
-        let lng = message.client.serverConfigCache.find(val => {
-            return val["serverid"] === message.guild.id
-        })["language"];
+        let lng = await message.client.getServerConfig(message.guild.id)['language'];
         if (lng === undefined) {
             lng = "en"
         }

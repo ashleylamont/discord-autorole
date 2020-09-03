@@ -18,7 +18,7 @@ module.exports = class LocaleCommand extends Command {
         });
     }
 
-    run(message) {
+    async run(message) {
         let languages = "";
         message.client.i18next.languages.filter(val => {
             return val !== "dev"
@@ -29,9 +29,7 @@ module.exports = class LocaleCommand extends Command {
                 languages += ", " + val;
             }
         });
-        let lng = message.client.serverConfigCache.find(val => {
-            return val["serverid"] === message.guild.id
-        })["language"];
+        let lng = await message.client.getServerConfig(message.guild.id)['language'];
         if (lng === undefined) {
             lng = "en"
         }

@@ -28,20 +28,19 @@ module.exports = class RolebindingCommand extends Command {
     }
 
     // noinspection JSCheckFunctionSignatures
-    run(message, {rolebinding, role, gamename, sendMessages, removeWhenInactive}) {
+    async run(message, {rolebinding, role, gamename, sendMessages, removeWhenInactive}) {
 
-        message.client.postgresClient.query(`SELECT * FROM rolebindings WHERE rolebinding=$1 AND serverid=$2`, [rolebinding, message.guild.id]).then(res => {
+        message.client.postgresClient.query(`SELECT *
+                                             FROM rolebindings
+                                             WHERE rolebinding = $1
+                                               AND serverid = $2`, [rolebinding, message.guild.id]).then(async (res) => {
 
             if (res.rowCount === 0) {
-                let lng = message.client.serverConfigCache.find(val => {
-                    return val["serverid"] === message.guild.id
-                })["language"];
+                let lng = await message.client.getServerConfig(message.guild.id)['language'];
                 return message.say(message.client.i18next.t("editRoleNoneApplicable", {"lng": lng}))
             } else {
-                message.say("Deleting the following role binding:").catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
-                        return val["serverid"] === message.guild.id
-                    })["language"];
+                message.say("Deleting the following role binding:").catch(async (err) => {
+                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
                     if (lng === undefined) {
                         lng = "en"
                     }
@@ -56,30 +55,28 @@ module.exports = class RolebindingCommand extends Command {
                     .addField("Rolebinding ID", val.rolebinding, true)
                     .addField("Send Messages?", (val.sendmessages) ? `Currently sending messages when I assign <@&${val.roleid}>` : `Not sending messages when I assign <@&${val.roleid}>`)
                     .addField("Remove Role?", (val.removewheninactive) ? `Currently removing <@&${val.roleid}> when users stop playing ${val.gamename}` : `Not removing <@&${val.roleid}> when users stop playing ${val.gamename}`);
-                message.embed(newEmbed).catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
-                        return val["serverid"] === message.guild.id
-                    })["language"];
+                message.embed(newEmbed).catch(async (err) => {
+                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
                     message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
-                message.client.postgresClient.query(`DELETE FROM rolebindings WHERE rolebinding=$1 AND serverid=$2 RETURNING *`, [rolebinding, message.guild.id]).then(() => {
+                message.client.postgresClient.query(`DELETE
+                                                     FROM rolebindings
+                                                     WHERE rolebinding = $1
+                                                       AND serverid = $2
+                                                     RETURNING *`, [rolebinding, message.guild.id]).then(() => {
 
                     return message.say(`Deleted the rolebinding.\nTo re-enable it type ${message.anyUsage(`create-rolebinding @${message.guild.roles.cache.get(val.roleid).name} "${val.gamename}" ${(val.sendmessages) ? "yes" : "no"} ${(val.removewheninactive) ? "yes" : "no"}`)}`);
 
-                }).catch(err => {
-                    let lng = message.client.serverConfigCache.find(val => {
-                        return val["serverid"] === message.guild.id
-                    })["language"];
+                }).catch(async (err) => {
+                    let lng = await message.client.getServerConfig(message.guild.id)['language'];
                     message.client.log(err);
                     return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
                 });
             }
 
-        }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
-                return val["serverid"] === message.guild.id
-            })["language"];
+        }).catch(async (err) => {
+            let lng = await message.client.getServerConfig(message.guild.id)['language'];
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });

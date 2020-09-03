@@ -25,13 +25,9 @@ module.exports = class GamesCommand extends Command {
     }
 
     // noinspection JSCheckFunctionSignatures
-    run(message, {user}) {
-        let status = message.client.serverConfigCache.find(val => {
-            return val["serverid"] === message.guild.id
-        })["gamesservices"];
-        let lng = message.client.serverConfigCache.find(val => {
-            return val["serverid"] === message.guild.id
-        })["language"];
+    async run(message, {user}) {
+        let status = await message.client.getServerConfig(message.guild.id)["gamesservices"];
+        let lng = await message.client.getServerConfig(message.guild.id)['language'];
         if (lng === undefined) {
             lng = "en"
         }

@@ -56,6 +56,33 @@ client.setProvider(
     sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
 ).catch(console.error);
 
+const getServerConfig = async function (serverid) {
+    if (!serverid) {
+        return {
+            serverid: serverid,
+            language: 'en',
+            gamesservices: false,
+            unknownmessage: true,
+            givetonoroles: false
+        }
+    }
+    let res = await client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid = $1', [serverid]);
+    if (res.rows.length === 0) {
+        await client.postgresClient.query(`INSERT INTO serverconfig (serverid,language) VALUES ($1,$2)`, [serverid, "en"]);
+        return {
+            serverid: serverid,
+            language: 'en',
+            gamesservices: false,
+            unknownmessage: true,
+            givetonoroles: false
+        }
+    } else {
+        return res.rows[0];
+    }
+}
+
+client.getServerConfig = getServerConfig;
+
 const init = async function () {
 
 // connect to top.gg
@@ -106,16 +133,6 @@ const init = async function () {
 
     const res = await client.postgresClient.query('SELECT $1::text as message', ['Connection Confirmed'])
     console.log(res.rows[0].message);
-
-    client.serverConfigCache = [];
-    client.postgresClient.query(`SELECT * FROM serverconfig`).then(res => {
-        client.serverConfigCache = res.rows;
-
-    }).catch(err => {
-        console.log(err.stack);
-        Sentry.captureException(err);
-    });
-
 
     client.once('ready', () => {
         let log = function () {
@@ -178,12 +195,10 @@ const init = async function () {
                                 if (newPresence.guild.roles.cache.get(roleBinding.roleid) !== undefined && newPresence.guild.id === roleBinding.serverid) {
                                     let roleName = newPresence.guild.roles.cache.get(roleBinding.roleid).name;
                                     if (newPresence.member.roles.cache.has(roleBinding.roleid) === false && currentActivities.includes(roleBinding.gamename.toLowerCase())) {
-                                        newPresence.member.roles.add(roleBinding.roleid).then(() => {
+                                        newPresence.member.roles.add(roleBinding.roleid).then(async () => {
                                             log(`Gave ${newPresence.member.displayName} the role ${roleName} on server ${newPresence.guild.name}`);
                                             if (roleBinding.sendmessages) {
-                                                let lng = client.serverConfigCache.find(val => {
-                                                    return val["serverid"] === guildId
-                                                })["language"];
+                                                let lng = await client.getServerConfig(guildId)["language"];
                                                 if (lng === undefined) {
                                                     lng = "en"
                                                 }
@@ -213,9 +228,7 @@ const init = async function () {
                                             });
                                             log(`Took away the role ${roleName} from ${newPresence.member.displayName} on server ${newPresence.guild.name}`);
                                             if (roleBinding.sendmessages) {
-                                                let lng = client.serverConfigCache.find(val => {
-                                                    return val["serverid"] === guildId
-                                                })["language"];
+                                                let lng = await client.getServerConfig(guildId)["language"];
                                                 if (lng === undefined) {
                                                     lng = "en"
                                                 }
@@ -237,42 +250,6 @@ const init = async function () {
             }
 
         });
-
-        setInterval(function () {
-            let t1 = performance.now();
-
-            client.guilds.cache.each((val) => {
-                let guild = val;
-
-                client.postgresClient.query('SELECT COUNT(*) FROM serverconfig WHERE serverid=$1', [guild.id]).then(res => {
-                    if (res.rows[0].count === '0') {
-                        client.postgresClient.query(`INSERT INTO serverconfig (serverid,language) VALUES ($1,$2)`, [guild.id, "en"]).then(res => {
-
-                            log(`Added ${guild.name} (${guild.id}) to the localisation database.`);
-                            if (res.rowCount === 0) {
-                                log(`Error adding ${guild.name} (${guild.id}) to the localisation database.`);
-                            } else {
-                                if (!(client.serverConfigCache.some((val) => {
-                                    return val.serverid === guild.id.toString();
-                                }))) {
-                                    client.serverConfigCache.push({'serverid': guild.id.toString(), 'language': 'en'});
-                                }
-                            }
-
-                        }).catch(err => {
-                            log(err.stack);
-                            Sentry.captureException(err);
-                        });
-                    }
-                });
-            });
-
-            let t2 = performance.now();
-            if (verbose) {
-                log(`Ran user update loop in ${t2 - t1} milliseconds.`)
-            }
-
-        }, 5000);
     });
 
     client.on('error', console.error);

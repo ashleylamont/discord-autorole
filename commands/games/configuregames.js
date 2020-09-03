@@ -31,23 +31,16 @@ module.exports = class GamesCommand extends Command {
         message.client.postgresClient.query(`UPDATE serverconfig
                                              SET gamesservices=$1
                                              WHERE serverid = $2`, [status, message.guild.id])
-            .then(res => {
-                message.client.serverConfigCache.find(val => {
-                    return val.serverid = message.guild.id
-                }).gamesservices = status;
+            .then(async (res) => {
                 message.client.log(`Updated ${message.guild.name}'s gamesservice status to be ${status ? 'enabled' : 'disabled'}.`);
-                let lng = message.client.serverConfigCache.find(val => {
-                    return val["serverid"] === message.guild.id
-                })["language"];
+                let lng = await message.client.getServerConfig(message.guild.id)['language'];
                 return message.say(message.client.i18next.t("gamesServicesUpdate", {
                     "lng": lng,
                     "status": (status ? '✅' : '❌')
                 }));
 
-            }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
-                return val["serverid"] === message.guild.id
-            })["language"];
+            }).catch(async (err) => {
+            let lng = await message.client.getServerConfig(message.guild.id)['language'];
             if (lng === undefined) {
                 lng = "en"
             }

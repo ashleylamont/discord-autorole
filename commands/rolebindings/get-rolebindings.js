@@ -19,12 +19,12 @@ module.exports = class RolebindingCommand extends Command {
     }
 
     run(message) {
-        message.client.postgresClient.query(`SELECT * FROM rolebindings WHERE serverid=$1`, [message.guild.id.toString()]).then(res => {
+        message.client.postgresClient.query(`SELECT *
+                                             FROM rolebindings
+                                             WHERE serverid = $1`, [message.guild.id.toString()]).then(async (res) => {
 
             if (res.rowCount === 0) {
-                let lng = message.client.serverConfigCache.find(val => {
-                    return val["serverid"] === message.guild.id
-                })["language"];
+                let lng = await message.client.getServerConfig(message.guild.id)['language'];
                 if (lng === undefined) {
                     lng = "en"
                 }
@@ -42,10 +42,8 @@ module.exports = class RolebindingCommand extends Command {
                 });
             }
 
-        }).catch(err => {
-            let lng = message.client.serverConfigCache.find(val => {
-                return val["serverid"] === message.guild.id
-            })["language"];
+        }).catch(async (err) => {
+            let lng = await message.client.getServerConfig(message.guild.id)['language'];
             message.client.log(err);
             return message.say(message.client.i18next.t("errorMsg", {"lng": lng}))
         });
