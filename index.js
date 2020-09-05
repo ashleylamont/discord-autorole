@@ -57,7 +57,7 @@ client.setProvider(
 ).catch(console.error);
 
 const getServerConfig = async function (server) {
-    if (!server) {
+    if (!server || !server.id) {
         console.error("Tried to get server config for dm channel.");
         return {
             serverid: undefined,
