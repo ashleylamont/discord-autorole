@@ -21,8 +21,7 @@ module.exports = class NoRolesConfig extends Command {
 
     // noinspection JSCheckFunctionSignatures
     async run(message) {
-        let res = await message.client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid = $1', [message.guild.id]);
-        let status = res.rows[0].givetonoroles;
+        let status = (await message.client.getServerConfig(message.guild))["givetonoroles"]
         message.client.postgresClient.query('UPDATE serverconfig SET givetonoroles=$1 WHERE serverid = $2', [!status, message.guild.id])
             .then(res => {
                 return message.reply('Giving roles to users without existing roles is now ' + (status ? 'disabled' : 'enabled') + '.')

@@ -190,8 +190,7 @@ const init = async function () {
                 client.postgresClient.query('SELECT * FROM rolebindings WHERE serverid=$1', [guildId])
                     .then((res) => {
                         res.rows.forEach(async (roleBinding) => {
-                            let giveToNoRoles = await client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid=$1', [guildId]);
-                            giveToNoRoles = giveToNoRoles.rows[0].givetonoroles;
+                            let giveToNoRoles = (await client.getServerConfig(newPresence.guild))['givetonoroles'];
                             let userRoleCount = newPresence.member.roles.cache.size;
                             if (giveToNoRoles || userRoleCount > 1) {
                                 if (newPresence.guild.roles.cache.get(roleBinding.roleid) !== undefined && newPresence.guild.id === roleBinding.serverid) {

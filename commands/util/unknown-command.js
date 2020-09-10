@@ -19,8 +19,7 @@ module.exports = class UnknownCommandCommand extends Command {
         if (msg.guild === null || msg.guild === undefined) {
             status = true;
         } else {
-            let res = await msg.client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid = $1', [msg.guild.id]);
-            status = res.rows[0].unknownmessage;
+            status = (await msg.client.getServerConfig(msg.guild))["unknownmessage"];
         }
         if (status) {
             return msg.reply(

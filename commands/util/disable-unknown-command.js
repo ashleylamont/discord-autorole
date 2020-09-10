@@ -21,8 +21,7 @@ module.exports = class DisableUnknownCommand extends Command {
 
     // noinspection JSCheckFunctionSignatures
     async run(message) {
-        let res = await message.client.postgresClient.query('SELECT * FROM serverconfig WHERE serverid = $1', [message.guild.id]);
-        let status = res.rows[0].unknownmessage;
+        let status = (await message.client.getServerConfig(message.guild))["unknownmessage"];
         message.client.postgresClient.query('UPDATE serverconfig SET unknownmessage=$1 WHERE serverid = $2', [!status, message.guild.id])
             .then(res => {
                 return message.reply('Unknown command is now ' + (status ? 'disabled' : 'enabled') + '.')
