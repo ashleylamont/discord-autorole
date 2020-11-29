@@ -5,12 +5,43 @@ if (args["_"].includes("verbose")) {
     verbose = true;
 }
 
-// Load config file
-const {token, testToken, pgUser, pgPassword, pgDatabase, pgHost, topggToken, sentryDSN, ownerId, inviteURL} = require('./config.json');
+function missingConf( component ) { 
+    console.error("FAILED TO START: Missing environment variable - " + component)
+    process.exit(1)
+}
 
-// initialise sentry for error tracking
-const Sentry = require('@sentry/node');
-Sentry.init({dsn: sentryDSN});
+// Load config file
+const token = process.env.token || missingConf("token")
+const testToken = process.env.testToken || "unset"
+const pgUser = process.env.pgUser || missingConf("pgUser")
+const pgPassword = process.env.pgPassword || missingConf("pgPassword")
+const pgDatabase = process.env.pgDatabase || missingConf("pgDatabase") 
+const pgHost = process.env.pgHost || missingConf("pgHost")
+const topggToken = process.env.topggToken || "unset"
+const sentryDSN = process.env.sentryDSN || "unset"
+const ownerId = process.env.ownerId || missingConf("ownerId")
+const inviteURL = process.env.inviteURL || "https://top.gg/bot/591955603308675073/invite"
+var sentryEnabled = false;
+
+
+// initialise sentry for error tracking if enabled
+if (sentryDSN != "unset") { 
+    const Sentry = require('@sentry/node');
+    Sentry.init({dsn: sentryDSN});
+    sentryEnabled = true;
+}
+
+// report # of discord servers where bot it installed to top.gg, if configured
+var dblEnabled = false;
+if (topggToken != "unset") { 
+    dblEnabled = true;
+}
+
+var testEnabled = false;
+if (testToken != "unset") {
+    testEnabled = true;
+}
+
 
 // require the discord.js module
 const Discord = require('discord.js');
@@ -87,23 +118,25 @@ client.getServerConfig = getServerConfig;
 
 const init = async function () {
 
-// connect to top.gg
-    const DBL = require("dblapi.js");
-    if (!verbose) {
-        const dbl = new DBL(topggToken, client);
-
-        // Optional events
-        dbl.on('posted', () => {
-            if (verbose) {
-                console.log('Server count posted!')
-            }
-        });
-
-        dbl.on('error', e => {
-            console.log(`Oops! ${e}`);
-        });
+// connect to top.gg        
+    if (dblEnabled) { 
+        const DBL = require("dblapi.js");
+        if (!verbose) {
+            const dbl = new DBL(topggToken, client);
+    
+            // Optional events
+            dbl.on('posted', () => {
+                if (verbose) {
+                    console.log('Server count posted!')
+                }
+            });
+    
+            dbl.on('error', e => {
+                console.log(`Oops! ${e}`);
+            });
+        }
+    
     }
-
     client.registry
         .registerDefaultTypes()
         .registerGroups([
@@ -181,7 +214,9 @@ const init = async function () {
                     client.postgresClient.query('INSERT INTO gamesplayed(userid, gamename) VALUES ($1,$2) ON CONFLICT DO NOTHING', [newPresence.user.id.toString(), newActivity])
                         .catch(err => {
                             log(err.stack);
-                            Sentry.captureException(err);
+                            if (sentryEnabled) { 
+                                Sentry.captureException(err);
+                            }
                         });
                 }
 
@@ -256,9 +291,11 @@ const init = async function () {
     client.on('error', console.error);
 
 // login to Discord with your app's token
-    if (verbose) {
+    if (verbose || testEnabled) {
+        console.log("Using discord api testToken") 
         await client.login(testToken);
     } else {
+        console.log("Using discord api production token")
         await client.login(token);
     }
 }

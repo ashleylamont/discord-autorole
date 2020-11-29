@@ -1,0 +1,45 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: autorole
+      POSTGRES_DB: autorole 
+      POSTGRES_PASSWORD: autorole
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  setup:
+    depends_on:
+      - postgres
+    image: alex4108/autorole-setup
+    environment:
+      pgUser: autorole
+      pgPassword: autorole
+      pgDatabase: autorole
+      pgHost: 
+      token: ${token}
+      ownerId: ${ownerId}
+    volumes:
+      - init:/init
+  autorole:
+    depends_on:
+      - postgres
+      - setup
+    image: alex4108/autorole
+    restart: always
+    links:
+      - postgres
+    environment:
+      token: 
+      pgUser: autorole
+      pgPassword: autorole
+      pgDatabase: autorole
+      pgHost: postgres
+      ownerId: FILL-THIS-IN
+    volumes:
+      - init:/init
+volumes:
+  init:
