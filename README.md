@@ -23,7 +23,7 @@ The bot can be started using (Docker Compose)[https://docs.docker.com/compose/].
 
 `ownerId=123 token=123 docker-compose up -d` to run the deployment as a service.  Replace Owner ID with your Discord User ID, and Token with your Discord Bot TOken retrieved from the earlier section.
 
-If you'd like to run the environment on an ARM architecture, you can do that with the alternative config: `ownerId=123 token=123 docker-compose up -d -f docker-compose-arm.yml` 
+If you'd like to run the environment on an ARM architecture, you can do that with the alternative config: `ownerId=123 token=123 docker-compose -f docker-compose-arm.yml up -d ` 
 
 ## Environment Variables
 
