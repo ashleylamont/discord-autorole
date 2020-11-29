@@ -10,7 +10,7 @@ This repository holds the code needed to deploy the application.
 
 ## Set up discord bot
 
-1. Create a Discord Application in (Discord Developers Portal)[https://discord.com/developers] 
+1. Create a Discord Application in [Discord Developers Portal](https://discord.com/developers) 
 1. Create a Bot for the application
 1. Enable Server Members & Presence Intents
 1. Note down the bot client ID from the Bot page.
@@ -19,7 +19,7 @@ This repository holds the code needed to deploy the application.
 
 ## Running in container
 
-The bot can be started using (Docker Compose)[https://docs.docker.com/compose/].
+The bot can be started using [Docker Compose](https://docs.docker.com/compose/).
 
 `ownerId=123 token=123 docker-compose up -d` to run the deployment as a service.  Replace Owner ID with your Discord User ID, and Token with your Discord Bot TOken retrieved from the earlier section.
 
@@ -41,4 +41,4 @@ This section defines the environment variables required by the `autorole` contai
 
 ## Thanks
 
-@dfcowell for [docker init conatiners](https://github.com/docker/compose/issues/6855)
+@dfcowell for (docker init conatiners)[https://github.com/docker/compose/issues/6855]
