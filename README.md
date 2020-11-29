@@ -1,20 +1,31 @@
 # AutoRole Discord Bot
 
-## Usage
+## What does it do?
+
+This bot watches your discord server users and assigns roles based on their presence.  For example, if a user is playing Valorant and their presence displays this, the bot can assign a configured role, based on the game name.
+
+Start with the `!help` command to the bot, once he is joined to a server and deployed.
+
+This repository holds the code needed to deploy the application.
+
+## Set up discord bot
+
+1. Create a Discord Application in (Discord Developers Portal)[https://discord.com/developers] 
+1. Create a Bot for the application
+1. Enable Server Members & Presence Intents
+1. Note down the bot client ID from the Bot page.
+1. Join the bot to your server: https://discord.com/oauth2/authorize?client_id=123&scope=bot&permissions=268462144 where 123 is the Client ID provided from the Discord Developers Portal.
+1. Note down Bot Toekn, needed for `token` parameter during launch
 
 ## Running in container
 
-The bot can be started using (Docker Compose)[].
+The bot can be started using (Docker Compose)[https://docs.docker.com/compose/].
 
-The owner ID should be set to the desired Discord User ID.
-
-The token should be a bot token from Discord, with *permission integer 26688*.
-
-`ownerId=123 token=123 docker-compose up -d` to run the container as a service.
+`ownerId=123 token=123 docker-compose up -d` to run the deployment as a service.  Replace Owner ID with your Discord User ID, and Token with your Discord Bot TOken retrieved from the earlier section.
 
 ## Environment Variables
 
-All variables are required unless noted.  Pay special attention to `ownerId`
+This section defines the environment variables required by the `autorole` container.  They are set by default in the docker-compose deployment.
 
 * `token`: The discord bot token for this bot.
 * `testToken`: _optional_ Set this if you intend to strap the bot to Discord using an alternative (test) token

@@ -175,7 +175,7 @@ const init = async function () {
             let args = Array.prototype.slice.call(arguments);
             // 2. Prepend log prefix log string
             args.unshift(LOG_PREFIX + " ");
-            client.guilds.cache.get('591956618145562627').channels.cache.get('671213111767728148').send(args[1]);
+            // client.guilds.cache.get('591956618145562627').channels.cache.get('671213111767728148').send(args[1]);
             // 3. Pass along arguments to console.log
             console.log.apply(console, args);
         };

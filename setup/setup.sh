@@ -2,7 +2,7 @@
 
 echo "Initializing postgres schema..."
 
-psql postgresql://${pgUser}:${pgPassword}@postgres/${pgDatabase} << EOF
+psql postgresql://${pgUser}:${pgPassword}@${pgHost}/${pgDatabase} << EOF
     $(cat schema.sql)
 EOF
 

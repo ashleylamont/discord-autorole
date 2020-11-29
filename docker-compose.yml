@@ -19,8 +19,7 @@ services:
       pgUser: autorole
       pgPassword: autorole
       pgDatabase: autorole
-      pgHost: 
-      token: ${token}
+      pgHost: postgres
       ownerId: ${ownerId}
     volumes:
       - init:/init
@@ -33,12 +32,12 @@ services:
     links:
       - postgres
     environment:
-      token: 
       pgUser: autorole
       pgPassword: autorole
       pgDatabase: autorole
       pgHost: postgres
-      ownerId: FILL-THIS-IN
+      token: ${token}
+      ownerId: ${ownerId}
     volumes:
       - init:/init
 volumes:
