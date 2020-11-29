@@ -15,7 +15,7 @@ This repository holds the code needed to deploy the application.
 1. Enable Server Members & Presence Intents
 1. Note down the bot client ID from the Bot page.
 1. Join the bot to your server: https://discord.com/oauth2/authorize?client_id=123&scope=bot&permissions=268462144 where 123 is the Client ID provided from the Discord Developers Portal.
-1. Note down Bot Toekn, needed for `token` parameter during launch
+1. Note down Bot Token, needed for `token` parameter during launch
 
 ## Running in container
 
@@ -36,8 +36,9 @@ This section defines the environment variables required by the `autorole` contai
 * `pgHost`: Postgres Hostname for DB connection
 * `topggToken`: _optional_ the top GG API token used to report # of discord servers where this bot is installed.
 * `sentryDSN`: _optional_ failed INSERTS get reported to Sentry, if configured.
-* `ownerId`: (!) The User ID of the bot owner for Discord, used for designating the bot owner.  *SET THIS BEFORE YOU RUN THE COMPOSE FILE!*
-* `inviteURL`: The invite URL for the bot's support server.
+* `ownerId`: The User ID of the bot owner for Discord, used for designating the bot owner.
+
+Local development example: `token=123 testToken=${token} pgUser=postgres pgPassword=postgres pgHost=127.0.0.1 ownerId=123 node index.js`
 
 ## Thanks
 
