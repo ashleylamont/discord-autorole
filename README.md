@@ -15,7 +15,8 @@ This repository holds the code needed to deploy the application.
 1. Enable Server Members & Presence Intents
 1. Note down the bot client ID from the Bot page.
 1. Join the bot to your server: https://discord.com/oauth2/authorize?client_id=123&scope=bot&permissions=268462144 where 123 is the Client ID provided from the Discord Developers Portal.
-1. Note down Bot Token, needed for `token` parameter during launch
+1. Note down Bot Token, needed for `token` parameter during launch.
+1. Enable both "Presence Intent" and "Server Members Intent" under the bot's settings in the Discord Developers Portal.
 
 ## Running in container
 
