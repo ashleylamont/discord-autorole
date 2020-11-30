@@ -36,3 +36,4 @@ create or replace view gamefrequency(gamename, count) as
     GROUP BY gamesplayed.gamename
     ORDER BY (count(*)) DESC;
 
+create extension PG_TRGM
