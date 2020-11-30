@@ -36,4 +36,8 @@ create or replace view gamefrequency(gamename, count) as
     GROUP BY gamesplayed.gamename
     ORDER BY (count(*)) DESC;
 
-create extension PG_TRGM
+create extension pg_trgm
+    schema public
+    version '1.4';
+
+comment on extension pg_trgm is 'text similarity measurement and index searching based on trigrams';
