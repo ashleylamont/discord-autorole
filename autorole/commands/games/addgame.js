@@ -48,7 +48,7 @@ module.exports = class GamesCommand extends Command {
                         message.reply(`I found very few existing records for "${gamename}", checking for possible typos now.`);
                         message.say(`If you are sure that you wanted to add "${gamename}", then use the command \`@AutoRole add-game-override ${gamename}\` to override this check.`);
                         // noinspection SqlResolve
-                        message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 20) AS gamesimilarity WHERE similarity > 0.3 ORDER BY similarity', [gamename.toLowerCase().trim()])
+                        message.client.postgresClient.query('SELECT * FROM (SELECT gamename, SIMILARITY(gamename, $1) FROM gamefrequency WHERE count > 2) AS gamesimilarity WHERE similarity > 0.3 ORDER BY similarity', [gamename.toLowerCase().trim()])
                             .then(res => {
                                 if (res.rowCount > 0) {
                                     let suggestions = [];
