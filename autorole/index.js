@@ -20,7 +20,7 @@ const pgHost = process.env.pgHost || missingConf("pgHost")
 const topggToken = process.env.topggToken || "unset"
 const sentryDSN = process.env.sentryDSN || "unset"
 const ownerId = process.env.ownerId || missingConf("ownerId")
-const inviteURL = process.env.inviteURL || "https://top.gg/bot/591955603308675073/invite"
+const inviteURL = process.env.inviteURL || "unset"
 var sentryEnabled = false;
 
 
