@@ -44,3 +44,4 @@ Local development example: `token=123 testToken=${token} pgUser=postgres pgPassw
 ## Thanks
 
 @dfcowell for (docker init conatiners)[https://github.com/docker/compose/issues/6855]
+@alex4108 for refactoring half the bot to run in docker
